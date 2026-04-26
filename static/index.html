@@ -1,50 +1,570 @@
 <!DOCTYPE html>
-<html>
-   <head>
-      <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
-      <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
-<script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<link rel="stylesheet" href="./particles.css">
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AbyssV5 - Advanced Proxy Engine</title>
+    
+    <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VHVNHMYGN3');
+    </script>
+    <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
+    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Inter:400,600,800&display=swap" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 
-  gtag('config', 'G-VHVNHMYGN3');
-</script>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-      <link rel="stylesheet" href="index.css">
-      <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
-      <link rel="shortcut icon" type="image/jpg" href="~/favicon.ico"/>
-      <link href="https://fonts.googleapis.com/css?family=Share Tech Mono" rel="stylesheet"/>
-   </head>
-   <body>
-      <div id="particles-js"></div>
-      <div id="imgsearch">
-         
-         <title>ΞV∆SI</title>
-         <img src="logo.gif" alt="Logo" style="width:640px;height:330px;">
-         <form id="uv-form"">
-            <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/> 
-            <input id="uv-address" type="text" placeholder="Search Google or type an URL" class="form__input"/>
-          </form>
-          <div class="desc left-margin">
-            <p id="uv-error"></p>
-            <pre id="uv-error-code"></pre>
-          </div>
+    <style>
+        /* =========================================
+           AbyssV5 Core Architecture Styles
+           ========================================= */
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-elevated: #141414;
+            --border-color: #222222;
+            --accent-primary: #00d2ff;
+            --accent-secondary: #7a00ff;
+            --accent-glow: rgba(0, 210, 255, 0.4);
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --tab-bg: #050505;
+            --tab-active: #0a0a0a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Perfect Loading Animation --- */
+        #abyss-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-base);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOutLoader 0.8s ease-in-out forwards 1.8s;
+            pointer-events: none;
+        }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--accent-primary);
+            border-bottom-color: var(--accent-secondary);
+            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            position: relative;
+        }
+
+        .loader-ring::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-left-color: var(--accent-primary);
+            border-right-color: var(--accent-secondary);
+            animation: spinReverse 0.8s linear infinite;
+        }
+
+        .loader-text {
+            margin-top: 25px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            letter-spacing: 6px;
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px var(--accent-glow);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* --- Browser UI Chrome --- */
+        .browser-header {
+            background-color: var(--bg-base);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* Tab Bar System */
+        .tab-bar {
+            display: flex;
+            padding: 8px 8px 0 8px;
+            gap: 6px;
+            overflow-x: auto;
+            background: #000;
+        }
+        
+        .tab-bar::-webkit-scrollbar { height: 0; }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background-color: var(--tab-bg);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 160px;
+            max-width: 220px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .tab.active {
+            background-color: var(--tab-active);
+            color: var(--text-main);
+            border-top: 2px solid var(--accent-primary);
+            box-shadow: 0 -10px 20px rgba(0, 210, 255, 0.05);
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #0f0f0f;
+            color: #ddd;
+        }
+
+        .tab-icon {
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .tab-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-close {
+            opacity: 0;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: opacity 0.2s, background-color 0.2s;
+            font-size: 14px;
+        }
+
+        .tab:hover .tab-close { opacity: 1; }
+        .tab-close:hover { background-color: rgba(255, 255, 255, 0.15); color: #ff4444; }
+
+        .add-tab-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 20px;
+            margin-left: 4px;
+            transition: all 0.2s;
+        }
+
+        .add-tab-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background-color: var(--bg-surface);
+            gap: 14px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+
+        .url-bar-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 16px;
+            height: 36px;
+            transition: all 0.3s ease;
+        }
+
+        .url-bar-container:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+            background-color: #1a1a1a;
+        }
+
+        .url-icon {
+            color: var(--accent-primary);
+            font-size: 12px;
+            margin-right: 10px;
+            opacity: 0.8;
+        }
+
+        #url-display {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            width: 100%;
+            font-size: 13px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- Main Viewport --- */
+        .view-container {
+            flex: 1;
+            position: relative;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, #111111 0%, transparent 70%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .home-interface {
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: text;
+        }
+
+        /* --- Perfect CSS 3D Logo --- */
+        .abyss-logo {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin-bottom: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+            perspective: 800px;
+        }
+
+        .logo-core {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 25px var(--accent-glow);
+            z-index: 10;
+            letter-spacing: -3px;
+        }
+
+        .logo-orbit-1, .logo-orbit-2 {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.05);
+        }
+
+        .logo-orbit-1 {
+            width: 100%;
+            height: 100%;
+            border-top: 2px solid var(--accent-primary);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            animation: orbit3D 7s linear infinite;
+        }
+
+        .logo-orbit-2 {
+            width: 65%;
+            height: 65%;
+            border-left: 2px solid var(--accent-secondary);
+            border-right: 2px solid rgba(255,255,255,0.1);
+            animation: orbit3DReverse 5s linear infinite;
+        }
+
+        /* --- Proxy Search Form (Logic Unchanged) --- */
+        #uv-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        #uv-address {
+            width: 100%;
+            padding: 22px 24px 22px 55px;
+            border-radius: 12px;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        #uv-address:focus {
+            border-color: var(--accent-primary);
+            background: rgba(25, 25, 25, 0.8);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 210, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        #uv-address::placeholder {
+            color: #555;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            font-size: 18px;
+            pointer-events: none;
+            transition: color 0.4s, text-shadow 0.4s;
+        }
+
+        #uv-address:focus + .search-icon {
+            color: var(--accent-primary);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .desc {
+            margin-top: 24px;
+            text-align: center;
+            width: 100%;
+        }
+
+        #uv-error {
+            color: #ff3366;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        #uv-error-code {
+            color: #aaaaaa;
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: none;
+            font-family: 'Share Tech Mono', monospace;
+            overflow-x: auto;
+        }
+
+        #uv-error-code:not(:empty) { display: block; }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            font-size: 11px;
+            color: #444;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Animations */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spinReverse { 100% { transform: rotate(-360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes fadeOutLoader { to { opacity: 0; visibility: hidden; backdrop-filter: blur(0px); } }
+        @keyframes orbit3D { 0% { transform: rotateX(65deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(65deg) rotateY(360deg) rotateZ(360deg); } }
+        @keyframes orbit3DReverse { 0% { transform: rotateX(-50deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(-50deg) rotateY(-360deg) rotateZ(-360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="abyss-loader">
+        <div class="loader-ring"></div>
+        <div class="loader-text">INITIALIZING ABYSS V5</div>
+    </div>
+
+    <div class="browser-header">
+        <div class="tab-bar" id="tab-bar">
+            <div class="tab active" data-tab="1">
+                <span class="tab-icon"></span>
+                <span class="tab-title">Abyss - Gateway</span>
+                <span class="tab-close" onclick="closeTab(event, this)">×</span>
+            </div>
+            <div class="add-tab-btn" onclick="addNewTab()" title="New Tab">+</div>
         </div>
-      <script src="uv/uv.bundle.js" defer></script>
-      <script src="uv/uv.config.js" defer></script>
-      <script src="register-sw.js" defer></script>
-      <script src="error.js" defer></script>
-      <script src="search.js" defer></script>
-      <script src="index.js" defer></script>
-      <script src="particles.min.js"></script>
-      <script src="particles.js"></script>
-      <div id="footer">
-         <p>&copy; 2023 Evasi. All rights reserved.</p>
-      </div>
-   </body>
+        <div class="nav-bar">
+            <button class="nav-btn" title="Go Back">◀</button>
+            <button class="nav-btn" title="Go Forward">▶</button>
+            <button class="nav-btn" title="Refresh" onclick="location.reload()">↻</button>
+            <div class="url-bar-container">
+                <span class="url-icon">✦</span>
+                <input type="text" id="url-display" value="abyss://gateway" readonly />
+            </div>
+            <button class="nav-btn" title="More Options">⋮</button>
+        </div>
+    </div>
+
+    <div class="view-container">
+        <div class="home-interface">
+            <div class="abyss-logo">
+                <div class="logo-orbit-1"></div>
+                <div class="logo-orbit-2"></div>
+                <div class="logo-core">V5</div>
+            </div>
+
+            <form id="uv-form">
+                <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+                <div class="search-wrapper">
+                    <input id="uv-address" type="text" placeholder="Enter URL or search query..." autocomplete="off"/>
+                    <span class="search-icon">⚲</span>
+                </div>
+            </form>
+            
+            <div class="desc left-margin">
+                <p id="uv-error"></p>
+                <pre id="uv-error-code"></pre>
+            </div>
+
+            <div class="footer">
+                &copy; 2026 AbyssV5 Architecture.
+            </div>
+        </div>
+    </div>
+
+    <script src="uv/uv.bundle.js" defer></script>
+    <script src="uv/uv.config.js" defer></script>
+    <script src="register-sw.js" defer></script>
+    <script src="error.js" defer></script>
+    <script src="search.js" defer></script>
+    <script src="index.js" defer></script>
+
+    <script>
+        let tabCount = 1;
+
+        function addNewTab() {
+            tabCount++;
+            const tabBar = document.getElementById('tab-bar');
+            const addBtn = document.querySelector('.add-tab-btn');
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            const newTab = document.createElement('div');
+            newTab.className = 'tab active';
+            newTab.dataset.tab = tabCount;
+            newTab.innerHTML = `
+                <span class="tab-icon"></span>
+                <span class="tab-title">New Tab</span>
+                <span class="tab-close" onclick="closeTab(event, this)">×</span>
+            `;
+            
+            newTab.addEventListener('click', function(e) {
+                if(!e.target.classList.contains('tab-close')) {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('url-display').value = "abyss://newtab";
+                    document.getElementById('uv-address').value = "";
+                }
+            });
+
+            tabBar.insertBefore(newTab, addBtn);
+            document.getElementById('url-display').value = "abyss://newtab";
+            document.getElementById('uv-address').value = "";
+            document.getElementById('uv-address').focus();
+        }
+
+        function closeTab(e, element) {
+            e.stopPropagation();
+            const tab = element.parentElement;
+            if(document.querySelectorAll('.tab').length > 1) {
+                if(tab.classList.contains('active')) {
+                    const prev = tab.previousElementSibling;
+                    if(prev && prev.classList.contains('tab')) {
+                        prev.classList.add('active');
+                    } else {
+                        tab.nextElementSibling.classList.add('active');
+                    }
+                }
+                tab.remove();
+            }
+        }
+
+        // Attach click to the default tab
+        document.querySelector('.tab').addEventListener('click', function(e) {
+            if(!e.target.classList.contains('tab-close')) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+
+        // Sync visual UI with the proxy form submission
+        document.getElementById('uv-form').addEventListener('submit', function() {
+            const input = document.getElementById('uv-address').value;
+            if(input) {
+                document.getElementById('url-display').value = "Proxy Session Active";
+                const activeTabTitle = document.querySelector('.tab.active .tab-title');
+                if(activeTabTitle) activeTabTitle.textContent = input;
+            }
+        });
+    </script>
+</body>
 </html>
