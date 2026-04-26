@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abyss Gateway</title>
+    
+    <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VHVNHMYGN3');
+    </script>
+    <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
+    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Inter:400,600,800&display=swap" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #030303;
+            --accent-primary: #00d2ff;
+            --accent-secondary: #7a00ff;
+            --accent-glow: rgba(0, 210, 255, 0.4);
+            --text-main: #ffffff;
+            --google-dark: #202124;
+            --google-border: #5f6368;
+            --google-hover: #303134;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, #111111 0%, transparent 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .home-interface {
+            width: 100%;
+            max-width: 650px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- CSS 3D Logo --- */
+        .abyss-logo {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+            perspective: 800px;
+        }
+
+        .logo-core {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 42px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 25px var(--accent-glow);
+            z-index: 10;
+            letter-spacing: -2px;
+        }
+
+        .logo-orbit-1, .logo-orbit-2 {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.05);
+        }
+
+        .logo-orbit-1 {
+            width: 100%;
+            height: 100%;
+            border-top: 2px solid var(--accent-primary);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            animation: orbit3D 7s linear infinite;
+        }
+
+        .logo-orbit-2 {
+            width: 65%;
+            height: 65%;
+            border-left: 2px solid var(--accent-secondary);
+            border-right: 2px solid rgba(255,255,255,0.1);
+            animation: orbit3DReverse 5s linear infinite;
+        }
+
+        /* --- Perfect Google-Style Dark Search Bar --- */
+        #uv-form {
+            width: 100%;
+            max-width: 584px; /* Google's standard search width */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        #uv-address {
+            width: 100%;
+            height: 48px;
+            padding: 0 44px 0 48px;
+            border-radius: 24px;
+            background: var(--google-dark);
+            border: 1px solid var(--google-border);
+            color: #e8eaed;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        #uv-address:hover {
+            background: var(--google-hover);
+            border-color: #5f6368;
+            box-shadow: 0 1px 6px 0 rgba(0,0,0,0.4);
+        }
+
+        #uv-address:focus {
+            background: var(--google-hover);
+            border-color: transparent;
+            box-shadow: 0 0 0 1px var(--accent-primary), 0 1px 10px rgba(0, 210, 255, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            color: #9aa0a6;
+        }
+
+        .search-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        /* Additional visual detail for Google style */
+        .mic-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-primary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .desc {
+            margin-top: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        #uv-error { color: #ff3366; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        
+        #uv-error-code {
+            color: #aaaaaa;
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: none;
+            font-family: 'Share Tech Mono', monospace;
+            text-align: left;
+        }
+
+        #uv-error-code:not(:empty) { display: block; }
+
+        @keyframes orbit3D { 0% { transform: rotateX(65deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(65deg) rotateY(360deg) rotateZ(360deg); } }
+        @keyframes orbit3DReverse { 0% { transform: rotateX(-50deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(-50deg) rotateY(-360deg) rotateZ(-360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="home-interface">
+        <div class="abyss-logo">
+            <div class="logo-orbit-1"></div>
+            <div class="logo-orbit-2"></div>
+            <div class="logo-core">V5</div>
+        </div>
+
+        <form id="uv-form">
+            <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
+            <div class="search-wrapper">
+                <span class="search-icon">
+                    <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                    </svg>
+                </span>
+                <input id="uv-address" type="text" placeholder="Google で検索または URL を入力" autocomplete="off"/>
+                <span class="mic-icon">●</span>
+            </div>
+        </form>
+        
+        <div class="desc left-margin">
+            <p id="uv-error"></p>
+            <pre id="uv-error-code"></pre>
+        </div>
+    </div>
+
+    <script src="uv/uv.bundle.js" defer></script>
+    <script src="uv/uv.config.js" defer></script>
+    <script src="register-sw.js" defer></script>
+    <script src="error.js" defer></script>
+    <script src="search.js" defer></script>
+    <script src="index.js" defer></script>
+
+    <script>
+        // Trigger the parent window's loading animation on form submit
+        document.getElementById('uv-form').addEventListener('submit', function(e) {
+            const inputValue = document.getElementById('uv-address').value;
+            if(inputValue && window.parent !== window) {
+                // Send postMessage to index.html to activate the loader immediately
+                window.parent.postMessage({ 
+                    type: 'start-proxy-load',
+                    target: inputValue 
+                }, '*');
+            }
+        });
+    </script>
+</body>
+</html>
