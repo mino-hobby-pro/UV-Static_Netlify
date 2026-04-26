@@ -3,24 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AbyssV5 - Advanced Proxy Engine</title>
-    
-    <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VHVNHMYGN3');
-    </script>
-    <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
+    <title>AbyssV5 - Web Interface</title>
     <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Inter:400,600,800&display=swap" rel="stylesheet"/>
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-
     <style>
-        /* =========================================
-           AbyssV5 Core Architecture Styles (Iframe Enabled)
-           ========================================= */
         :root {
             --bg-base: #030303;
             --bg-surface: #0a0a0a;
@@ -35,12 +20,7 @@
             --tab-active: #0a0a0a;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -52,49 +32,47 @@
             overflow: hidden;
         }
 
-        /* --- Perfect Initial Loading Animation --- */
-        #abyss-loader {
+        /* --- Global Loading Animation --- */
+        #global-loader {
             position: fixed;
             inset: 0;
-            background: var(--bg-base);
+            background: rgba(3, 3, 3, 0.85);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            animation: fadeOutLoader 0.8s ease-in-out forwards 1.8s;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
             pointer-events: none;
         }
 
-        .loader-ring {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: var(--accent-primary);
-            border-bottom-color: var(--accent-secondary);
-            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-            position: relative;
+        #global-loader.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
         }
 
-        .loader-ring::before {
-            content: '';
-            position: absolute;
-            inset: 8px;
+        .loader-ring {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            border: 2px solid transparent;
-            border-left-color: var(--accent-primary);
+            border: 3px solid transparent;
+            border-top-color: var(--accent-primary);
             border-right-color: var(--accent-secondary);
-            animation: spinReverse 0.8s linear infinite;
+            animation: spin 1s linear infinite;
         }
 
         .loader-text {
-            margin-top: 25px;
+            margin-top: 20px;
             font-family: 'Share Tech Mono', monospace;
             font-size: 14px;
-            letter-spacing: 6px;
-            color: var(--accent-primary);
-            text-shadow: 0 0 10px var(--accent-glow);
+            letter-spacing: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             animation: pulse 1.5s ease-in-out infinite;
         }
 
@@ -108,7 +86,6 @@
             z-index: 100;
         }
 
-        /* Tab Bar System */
         .tab-bar {
             display: flex;
             padding: 8px 8px 0 8px;
@@ -116,7 +93,6 @@
             overflow-x: auto;
             background: #000;
         }
-        
         .tab-bar::-webkit-scrollbar { height: 0; }
 
         .tab {
@@ -133,7 +109,7 @@
             cursor: pointer;
             min-width: 160px;
             max-width: 220px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             position: relative;
         }
 
@@ -144,19 +120,14 @@
             box-shadow: 0 -10px 20px rgba(0, 210, 255, 0.05);
         }
 
-        .tab:hover:not(.active) {
-            background-color: #0f0f0f;
-            color: #ddd;
-        }
+        .tab:hover:not(.active) { background-color: #0f0f0f; color: #ddd; }
 
         .tab-icon {
             width: 12px;
             height: 12px;
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border-radius: 50%;
-            display: inline-block;
             box-shadow: 0 0 8px var(--accent-glow);
-            flex-shrink: 0;
         }
 
         .tab-title {
@@ -165,20 +136,18 @@
             overflow: hidden;
             text-overflow: ellipsis;
             font-weight: 600;
-            letter-spacing: 0.5px;
         }
 
         .tab-close {
             opacity: 0;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: opacity 0.2s, background-color 0.2s;
-            font-size: 14px;
-            flex-shrink: 0;
+            transition: 0.2s;
+            font-size: 16px;
         }
 
         .tab:hover .tab-close { opacity: 1; }
@@ -195,43 +164,34 @@
             color: var(--text-muted);
             font-size: 20px;
             margin-left: 4px;
-            transition: all 0.2s;
-            flex-shrink: 0;
+            transition: 0.2s;
         }
+        .add-tab-btn:hover { background-color: rgba(255, 255, 255, 0.1); color: var(--text-main); }
 
-        .add-tab-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-        }
-
-        /* Navigation Bar */
+        /* Navigation Bar (Perfectly Sized & Aligned) */
         .nav-bar {
             display: flex;
             align-items: center;
-            padding: 10px 16px;
+            padding: 8px 16px;
             background-color: var(--bg-surface);
-            gap: 14px;
+            gap: 12px;
         }
 
         .nav-btn {
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: 0.2s;
         }
-
-        .nav-btn:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
-        }
+        .nav-btn:hover { background-color: rgba(255, 255, 255, 0.1); color: var(--text-main); }
 
         .url-bar-container {
             flex: 1;
@@ -239,23 +199,14 @@
             align-items: center;
             background-color: var(--bg-elevated);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 20px;
             padding: 0 16px;
             height: 36px;
             transition: all 0.3s ease;
         }
-
         .url-bar-container:focus-within {
             border-color: var(--accent-primary);
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
-            background-color: #1a1a1a;
-        }
-
-        .url-icon {
-            color: var(--accent-primary);
-            font-size: 12px;
-            margin-right: 10px;
-            opacity: 0.8;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.1);
         }
 
         #url-display {
@@ -266,484 +217,186 @@
             font-size: 13px;
             outline: none;
             font-family: 'Inter', sans-serif;
-            letter-spacing: 0.5px;
+            margin-left: 8px;
         }
 
-        /* --- Main Viewport (Tab Contents) --- */
-        .view-container {
+        /* --- Iframe Container --- */
+        #frames-container {
             flex: 1;
             position: relative;
-            background-color: #ffffff; /* For proxied sites */
-            overflow: hidden;
-        }
-
-        .tab-content {
-            position: absolute;
-            inset: 0;
-            display: none;
+            background-color: var(--bg-base);
             width: 100%;
-            height: 100%;
         }
 
-        .tab-content.active {
-            display: block;
-        }
-
-        .proxy-frame {
+        .tab-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             border: none;
-            background-color: #ffffff;
+            display: none;
+            background-color: #fff; /* White background for proxied sites to render correctly */
         }
 
-        /* --- Home Interface (Appears in new tabs) --- */
-        .home-interface {
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-base);
-            background-image: radial-gradient(circle at 50% 0%, #111111 0%, transparent 70%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            user-select: text;
+        .tab-frame.active {
+            display: block;
         }
 
-        .home-wrapper {
-            width: 100%;
-            max-width: 650px;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* CSS 3D Logo */
-        .abyss-logo {
-            position: relative;
-            width: 160px;
-            height: 160px;
-            margin-bottom: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transform-style: preserve-3d;
-            perspective: 800px;
-        }
-
-        .logo-core {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 48px;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 0 0 25px var(--accent-glow);
-            z-index: 10;
-            letter-spacing: -3px;
-        }
-
-        .logo-orbit-1, .logo-orbit-2 {
-            position: absolute;
-            border-radius: 50%;
-            box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.05);
-        }
-
-        .logo-orbit-1 {
-            width: 100%;
-            height: 100%;
-            border-top: 2px solid var(--accent-primary);
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-            animation: orbit3D 7s linear infinite;
-        }
-
-        .logo-orbit-2 {
-            width: 65%;
-            height: 65%;
-            border-left: 2px solid var(--accent-secondary);
-            border-right: 2px solid rgba(255,255,255,0.1);
-            animation: orbit3DReverse 5s linear infinite;
-        }
-
-        /* Search Form within Home */
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .abyss-address {
-            width: 100%;
-            padding: 22px 24px 22px 55px;
-            border-radius: 12px;
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        }
-
-        .abyss-address:focus {
-            border-color: var(--accent-primary);
-            background: rgba(25, 25, 25, 0.8);
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 210, 255, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 22px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #555;
-            font-size: 18px;
-            pointer-events: none;
-            transition: color 0.4s, text-shadow 0.4s;
-        }
-
-        .abyss-address:focus + .search-icon {
-            color: var(--accent-primary);
-            text-shadow: 0 0 8px var(--accent-glow);
-        }
-
-        /* --- Iframe Loading Overlay --- */
-        .iframe-loader-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(8px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s;
-        }
-
-        .iframe-loader-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .mini-ring {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: var(--accent-primary);
-            animation: spin 0.8s linear infinite;
-        }
-
-        .mini-text {
-            margin-top: 15px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            color: var(--text-main);
-            letter-spacing: 2px;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 40px;
-            font-size: 11px;
-            color: #444;
-            font-family: 'Share Tech Mono', monospace;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Animations */
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes spinReverse { 100% { transform: rotate(-360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        @keyframes fadeOutLoader { to { opacity: 0; visibility: hidden; backdrop-filter: blur(0px); } }
-        @keyframes orbit3D { 0% { transform: rotateX(65deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(65deg) rotateY(360deg) rotateZ(360deg); } }
-        @keyframes orbit3DReverse { 0% { transform: rotateX(-50deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(-50deg) rotateY(-360deg) rotateZ(-360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <div id="abyss-loader">
-        <div class="loader-ring"></div>
-        <div class="loader-text">INITIALIZING ABYSS V5</div>
-    </div>
-
     <div class="browser-header">
         <div class="tab-bar" id="tab-bar">
-            <div class="add-tab-btn" onclick="AbyssBrowser.createTab()" title="New Tab">+</div>
+            <div class="tab active" data-tab-id="tab-1" onclick="switchTab('tab-1')">
+                <span class="tab-icon"></span>
+                <span class="tab-title">Abyss Gateway</span>
+                <span class="tab-close" onclick="closeTab(event, 'tab-1')">×</span>
+            </div>
+            <div class="add-tab-btn" onclick="createNewTab()" title="New Tab">+</div>
         </div>
         <div class="nav-bar">
-            <button class="nav-btn" title="Go Back" onclick="AbyssBrowser.goBack()">◀</button>
-            <button class="nav-btn" title="Go Forward" onclick="AbyssBrowser.goForward()">▶</button>
-            <button class="nav-btn" title="Refresh" onclick="AbyssBrowser.reload()">↻</button>
+            <button class="nav-btn" onclick="navigateActiveFrame(-1)" title="Go Back">◀</button>
+            <button class="nav-btn" onclick="navigateActiveFrame(1)" title="Go Forward">▶</button>
+            <button class="nav-btn" onclick="reloadActiveFrame()" title="Refresh">↻</button>
             <div class="url-bar-container">
-                <span class="url-icon">✦</span>
-                <input type="text" id="url-display" value="abyss://gateway" autocomplete="off" />
+                <span style="color: var(--accent-primary); font-size: 12px;">✦</span>
+                <input type="text" id="url-display" value="abyss://gateway" readonly />
             </div>
-            <button class="nav-btn" title="More Options">⋮</button>
         </div>
     </div>
 
-    <div class="view-container" id="view-container">
-        </div>
+    <div id="global-loader">
+        <div class="loader-ring"></div>
+        <div class="loader-text">ESTABLISHING SECURE CONNECTION...</div>
+    </div>
 
-    <script src="uv/uv.bundle.js" defer></script>
-    <script src="uv/uv.config.js" defer></script>
-    
-    <form id="uv-form" style="display:none;"><input id="uv-address"></form>
+    <div id="frames-container">
+        <iframe src="search.html" id="frame-tab-1" class="tab-frame active" onload="handleFrameLoad('tab-1')"></iframe>
+    </div>
 
     <script>
-        /**
-         * AbyssV5 - Advanced Tabbed Proxy Engine
-         * Handles native-like tab routing via iframes and UV protocol
-         */
-        const AbyssBrowser = (function() {
-            let tabCounter = 0;
-            let activeTabId = null;
-            const tabs = new Map(); // Store tab data
+        let tabCounter = 1;
+        let activeTabId = 'tab-1';
+        const loader = document.getElementById('global-loader');
 
-            // HTML template for the Home screen
-            const homeTemplate = `
-                <div class="home-interface">
-                    <div class="home-wrapper">
-                        <div class="abyss-logo">
-                            <div class="logo-orbit-1"></div>
-                            <div class="logo-orbit-2"></div>
-                            <div class="logo-core">V5</div>
-                        </div>
-                        <form class="abyss-search-form" onsubmit="AbyssBrowser.handleHomeSubmit(event, this)">
-                            <div class="search-wrapper">
-                                <input class="abyss-address" type="text" placeholder="Enter URL or search query..." autocomplete="off"/>
-                                <span class="search-icon">⚲</span>
-                            </div>
-                        </form>
-                        <div class="footer">&copy; 2026 AbyssV5 Architecture.</div>
-                    </div>
-                </div>
+        function createNewTab() {
+            tabCounter++;
+            const newTabId = `tab-${tabCounter}`;
+            
+            // UI Tab Create
+            const tabBar = document.getElementById('tab-bar');
+            const addBtn = document.querySelector('.add-tab-btn');
+            const newTab = document.createElement('div');
+            newTab.className = 'tab';
+            newTab.id = newTabId;
+            newTab.setAttribute('onclick', `switchTab('${newTabId}')`);
+            newTab.innerHTML = `
+                <span class="tab-icon"></span>
+                <span class="tab-title">New Tab</span>
+                <span class="tab-close" onclick="closeTab(event, '${newTabId}')">×</span>
             `;
+            tabBar.insertBefore(newTab, addBtn);
 
-            // Utility: Check if string is a valid URL
-            function isUrl(val) {
-                if (/^http(s?):\/\//.test(val) || val.includes('.') && val.substr(0, 1) !== ' ') return true;
-                return false;
+            // Iframe Create
+            const framesContainer = document.getElementById('frames-container');
+            const newFrame = document.createElement('iframe');
+            newFrame.src = 'search.html';
+            newFrame.id = `frame-${newTabId}`;
+            newFrame.className = 'tab-frame';
+            newFrame.setAttribute('onload', `handleFrameLoad('${newTabId}')`);
+            framesContainer.appendChild(newFrame);
+
+            switchTab(newTabId);
+        }
+
+        function switchTab(tabId) {
+            activeTabId = tabId;
+            
+            // Update Tab UI
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            // Update Iframe Visibility
+            document.querySelectorAll('.tab-frame').forEach(f => f.classList.remove('active'));
+            document.getElementById(`frame-${tabId}`).classList.add('active');
+
+            // Update URL Bar
+            const activeFrame = document.getElementById(`frame-${tabId}`);
+            if (activeFrame.src.includes('search.html')) {
+                document.getElementById('url-display').value = 'abyss://newtab';
+            } else {
+                document.getElementById('url-display').value = 'Abyss Secure Session';
+            }
+        }
+
+        function closeTab(event, tabId) {
+            event.stopPropagation();
+            const tabs = document.querySelectorAll('.tab');
+            if (tabs.length <= 1) return; // Prevent closing last tab
+
+            const tabElement = document.getElementById(tabId);
+            const frameElement = document.getElementById(`frame-${tabId}`);
+
+            if (tabElement.classList.contains('active')) {
+                const prev = tabElement.previousElementSibling;
+                const next = tabElement.nextElementSibling;
+                if (prev && prev.classList.contains('tab')) {
+                    switchTab(prev.id);
+                } else if (next && next.classList.contains('tab')) {
+                    switchTab(next.id);
+                }
             }
 
-            // Register Service Worker
-            async function registerSW() {
-                if ('serviceWorker' in navigator) {
-                    try {
-                        await navigator.serviceWorker.register('./sw.js', {
-                            scope: __uv$config.prefix
-                        });
-                    } catch (err) {
-                        console.error('SW Registration Failed:', err);
-                    }
+            tabElement.remove();
+            frameElement.remove();
+        }
+
+        function navigateActiveFrame(direction) {
+            const frame = document.getElementById(`frame-${activeTabId}`);
+            if (frame && frame.contentWindow) {
+                direction === -1 ? frame.contentWindow.history.back() : frame.contentWindow.history.forward();
+            }
+        }
+
+        function reloadActiveFrame() {
+            const frame = document.getElementById(`frame-${activeTabId}`);
+            if (frame) {
+                loader.classList.add('active');
+                frame.src = frame.src; 
+            }
+        }
+
+        function handleFrameLoad(tabId) {
+            loader.classList.remove('active');
+            
+            // Try to read title if possible (Might be blocked by Cross-Origin after proxying)
+            try {
+                const frame = document.getElementById(`frame-${tabId}`);
+                const title = frame.contentDocument ? frame.contentDocument.title : 'Secure Page';
+                if(title) {
+                    const tabTitleEl = document.querySelector(`#${tabId} .tab-title`);
+                    if(tabTitleEl) tabTitleEl.textContent = title || 'Abyss Session';
+                }
+            } catch(e) {
+                const tabTitleEl = document.querySelector(`#${tabId} .tab-title`);
+                if(tabTitleEl && tabTitleEl.textContent === 'New Tab') {
+                    tabTitleEl.textContent = 'Secure Session';
                 }
             }
+        }
 
-            // Core routing logic (Encoding URL via Ultraviolet)
-            async function navigateTo(url, tabId) {
-                const tabData = tabs.get(tabId);
-                if (!tabData) return;
-
-                await registerSW();
-
-                // Build search URL if not a direct link
-                let targetUrl = url.trim();
-                if (!isUrl(targetUrl)) {
-                    targetUrl = `https://www.google.com/search?q=${encodeURIComponent(targetUrl)}`;
-                } else if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-                    targetUrl = 'https://' + targetUrl;
-                }
-
-                // Encode via UV config
-                const encodedUrl = __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
-
-                // Update UI
-                if (activeTabId === tabId) {
-                    document.getElementById('url-display').value = targetUrl;
-                }
-                
-                // Update Tab Title
-                const titleSpan = tabData.tabElement.querySelector('.tab-title');
-                titleSpan.textContent = targetUrl.replace('https://', '').replace('http://', '').split('/')[0];
-
-                // Setup Iframe if not exists, replace Home View
-                const contentDiv = tabData.contentElement;
-                contentDiv.innerHTML = ''; // Clear Home UI
-                
-                // Create Iframe Loader
-                const loader = document.createElement('div');
-                loader.className = 'iframe-loader-overlay active';
-                loader.innerHTML = `
-                    <div class="mini-ring"></div>
-                    <div class="mini-text">ESTABLISHING SECURE CONNECTION...</div>
-                `;
-                
-                // Create Iframe
-                const iframe = document.createElement('iframe');
-                iframe.className = 'proxy-frame';
-                iframe.src = encodedUrl;
-                
-                // When iframe finishes loading, remove overlay
-                iframe.onload = () => {
-                    loader.classList.remove('active');
-                    // Optional: Try to fetch inner title if same-origin allows, 
-                    // but with proxies it's often blocked by CORS, so we rely on URL.
-                };
-
-                contentDiv.appendChild(iframe);
-                contentDiv.appendChild(loader);
-                tabData.iframe = iframe;
+        // Listen for messages from search.html to trigger loader
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'start-proxy-load') {
+                loader.classList.add('active');
+                document.getElementById('url-display').value = 'Connecting to: ' + event.data.target;
+                const tabTitleEl = document.querySelector(`#${activeTabId} .tab-title`);
+                if(tabTitleEl) tabTitleEl.textContent = 'Loading...';
             }
-
-            // Expose Public API
-            return {
-                init: function() {
-                    // Create first default tab
-                    this.createTab();
-
-                    // Listen to Top URL Bar
-                    const urlBar = document.getElementById('url-display');
-                    urlBar.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (activeTabId && urlBar.value) {
-                                navigateTo(urlBar.value, activeTabId);
-                            }
-                        }
-                    });
-                },
-
-                createTab: function() {
-                    tabCounter++;
-                    const id = `tab-${tabCounter}`;
-
-                    // --- Create Tab Element ---
-                    const tabBar = document.getElementById('tab-bar');
-                    const addBtn = document.querySelector('.add-tab-btn');
-                    
-                    const tabEl = document.createElement('div');
-                    tabEl.className = 'tab';
-                    tabEl.dataset.id = id;
-                    tabEl.innerHTML = `
-                        <span class="tab-icon"></span>
-                        <span class="tab-title">Abyss - Gateway</span>
-                        <span class="tab-close" onclick="AbyssBrowser.closeTab(event, '${id}')">×</span>
-                    `;
-                    tabEl.onclick = () => this.switchTab(id);
-
-                    // --- Create Content Element (Default Home) ---
-                    const viewContainer = document.getElementById('view-container');
-                    const contentEl = document.createElement('div');
-                    contentEl.className = 'tab-content';
-                    contentEl.dataset.id = id;
-                    contentEl.innerHTML = homeTemplate;
-
-                    // Save to State
-                    tabs.set(id, {
-                        tabElement: tabEl,
-                        contentElement: contentEl,
-                        iframe: null
-                    });
-
-                    tabBar.insertBefore(tabEl, addBtn);
-                    viewContainer.appendChild(contentEl);
-
-                    this.switchTab(id);
-                },
-
-                switchTab: function(id) {
-                    if (!tabs.has(id)) return;
-
-                    // Deactivate all
-                    tabs.forEach((data) => {
-                        data.tabElement.classList.remove('active');
-                        data.contentElement.classList.remove('active');
-                    });
-
-                    // Activate selected
-                    const activeData = tabs.get(id);
-                    activeData.tabElement.classList.add('active');
-                    activeData.contentElement.classList.add('active');
-                    activeTabId = id;
-
-                    // Update Top URL bar based on state
-                    const urlDisplay = document.getElementById('url-display');
-                    if (activeData.iframe) {
-                        // Reverse engineer the URL from UV encoding for display (if possible), or just keep memory.
-                        // Simplest way: use the tab title which stores the domain, or keep a state variable.
-                        // Here we just set it to the tab title text for clean UI.
-                        urlDisplay.value = activeData.tabElement.querySelector('.tab-title').textContent;
-                    } else {
-                        urlDisplay.value = 'abyss://gateway';
-                    }
-                },
-
-                closeTab: function(e, id) {
-                    e.stopPropagation();
-                    if (tabs.size <= 1) return; // Prevent closing last tab
-
-                    const tabData = tabs.get(id);
-                    
-                    // Logic to switch to adjacent tab if closing active
-                    if (activeTabId === id) {
-                        const tabElements = Array.from(document.querySelectorAll('.tab'));
-                        const currentIndex = tabElements.findIndex(t => t.dataset.id === id);
-                        let nextTab = tabElements[currentIndex - 1] || tabElements[currentIndex + 1];
-                        if (nextTab) {
-                            this.switchTab(nextTab.dataset.id);
-                        }
-                    }
-
-                    // Remove from DOM and State
-                    tabData.tabElement.remove();
-                    tabData.contentElement.remove();
-                    tabs.delete(id);
-                },
-
-                // Called by the form inside the Home screen
-                handleHomeSubmit: function(e, form) {
-                    e.preventDefault();
-                    const input = form.querySelector('.abyss-address').value;
-                    if (input && activeTabId) {
-                        navigateTo(input, activeTabId);
-                    }
-                },
-
-                // Nav Controls (Operates on the active iframe)
-                goBack: function() {
-                    const data = tabs.get(activeTabId);
-                    if (data && data.iframe) {
-                        try { data.iframe.contentWindow.history.back(); } catch(e){}
-                    }
-                },
-
-                goForward: function() {
-                    const data = tabs.get(activeTabId);
-                    if (data && data.iframe) {
-                        try { data.iframe.contentWindow.history.forward(); } catch(e){}
-                    }
-                },
-
-                reload: function() {
-                    const data = tabs.get(activeTabId);
-                    if (data && data.iframe) {
-                        // Show loader again
-                        const loader = data.contentElement.querySelector('.iframe-loader-overlay');
-                        if(loader) loader.classList.add('active');
-                        try { data.iframe.contentWindow.location.reload(); } catch(e){}
-                    }
-                }
-            };
-        })();
-
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            AbyssBrowser.init();
         });
     </script>
 </body>
