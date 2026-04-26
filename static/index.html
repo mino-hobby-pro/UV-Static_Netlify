@@ -2,217 +2,108 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abyss V5 - Nexus Shell</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Abyss - Gateway</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-chrome: #050505;
-            --bg-nav: #0f0f0f;
-            --accent: #00d2ff;
-            --accent-gradient: linear-gradient(90deg, #00d2ff, #7a00ff, #ff00c8, #00d2ff);
-            --text-main: #e0e0e0;
-            --border: #222;
+        body {
+            background: #050505;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-chrome); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
-        /* タブバー */
-        .tab-bar { display: flex; background: #000; padding: 8px 8px 0; gap: 4px; align-items: flex-end; border-bottom: 1px solid var(--border); }
-        .tab {
-            min-width: 140px; max-width: 200px; height: 36px; background: var(--bg-nav); border: 1px solid var(--border); border-bottom: none;
-            border-radius: 8px 8px 0 0; padding: 0 12px; display: flex; align-items: center; gap: 8px; cursor: pointer;
-            font-size: 12px; color: #888; transition: 0.2s; position: relative;
-        }
-        .tab.active { background: var(--bg-chrome); color: var(--text-main); border-top: 2px solid var(--accent); }
-        .tab:hover:not(.active) { background: #1a1a1a; }
-        .tab-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .tab-close { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.2s; }
-        .tab-close:hover { background: rgba(255,255,255,0.1); color: #ff4444; }
-        .new-tab-btn { padding: 8px 12px; cursor: pointer; color: #888; font-size: 18px; }
-
-        /* ナビゲーションバー */
-        .nav-bar { background: var(--bg-chrome); padding: 8px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
-        .nav-btns { display: flex; gap: 8px; }
-        .btn { background: none; border: none; color: #888; cursor: pointer; font-size: 16px; transition: 0.2s; width: 32px; height: 32px; border-radius: 50%; }
-        .btn:hover { background: var(--bg-nav); color: var(--accent); }
-
-        .address-bar-container {
-            flex: 1; background: var(--bg-nav); border: 1px solid var(--border); border-radius: 20px;
-            height: 36px; display: flex; align-items: center; padding: 0 16px; transition: 0.3s;
-        }
-        .address-bar-container:focus-within { border-color: var(--accent); box-shadow: 0 0 10px rgba(0,210,255,0.2); }
-        #main-address-bar {
-            width: 100%; background: none; border: none; color: #fff; outline: none; font-size: 13px; font-family: 'Inter';
+        .logo {
+            font-size: 72px;
+            font-weight: 800;
+            letter-spacing: -4px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #fff 0%, #444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
         }
 
-        /* ビューポート */
-        .viewport { flex: 1; position: relative; background: #000; }
-        iframe { width: 100%; height: 100%; border: none; display: none; position: absolute; inset: 0; }
-        iframe.active { display: block; }
+        .search-container {
+            width: 100%;
+            max-width: 580px;
+            position: relative;
+        }
 
-        /* ローディングアニメーション */
-        .loader-overlay {
-            position: absolute; inset: 0; background: var(--bg-chrome); z-index: 100;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+        .search-bar {
+            width: 100%;
+            padding: 14px 28px;
+            border-radius: 30px;
+            background: #202124;
+            border: 1px solid #3c4043;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
         }
-        .loader-overlay.visible { display: flex; }
-        .nexus-loader {
-            width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid var(--accent);
-            border-radius: 50%; animation: spin 1s linear infinite; position: relative;
-        }
-        .nexus-loader::after {
-            content: ''; position: absolute; inset: 5px; border: 3px solid transparent;
-            border-top: 3px solid #7a00ff; border-radius: 50%; animation: spin 0.5s linear infinite reverse;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* レインボーアクセント */
-        .rainbow-line {
-            height: 1px; width: 100%; background: var(--accent-gradient);
-            background-size: 300% 100%; animation: rainbowMove 3s linear infinite;
+        .search-bar:hover {
+            background: #303134;
+            border-color: transparent;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.3);
         }
-        @keyframes rainbowMove { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        .search-bar:focus {
+            background: #303134;
+            box-shadow: 0 1px 8px 1px rgba(0,0,0,0.3);
+        }
+
+        .hint {
+            margin-top: 24px;
+            color: #9aa0a6;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
-    <div class="tab-bar" id="tab-bar">
-        <div class="new-tab-btn" onclick="createNewTab()">+</div>
+    <div class="logo">ABYSS</div>
+    <div class="search-container">
+        <form id="search-form">
+            <input type="text" class="search-bar" id="search-input" placeholder="検索またはURLを入力" autofocus autocomplete="off">
+        </form>
     </div>
-    <div class="nav-bar">
-        <div class="nav-btns">
-            <button class="btn" onclick="activeIframeAction('back')">←</button>
-            <button class="btn" onclick="activeIframeAction('forward')">→</button>
-            <button class="btn" onclick="activeIframeAction('reload')">↻</button>
-        </div>
-        <div class="address-bar-container">
-            <input type="text" id="main-address-bar" placeholder="URLを入力または検索..." autocomplete="off">
-        </div>
-    </div>
-    <div class="rainbow-line"></div>
+    <div class="hint">Secure Proxy Architecture v5.2</div>
 
-    <div class="viewport" id="viewport">
-        <div class="loader-overlay" id="global-loader">
-            <div class="nexus-loader"></div>
-        </div>
-        </div>
-
-    <script src="uv/uv.bundle.js"></script>
-    <script src="uv/uv.config.js"></script>
+      <script src="uv/uv.bundle.js" defer></script>
+      <script src="uv/uv.config.js" defer></script>
+      <script src="register-sw.js" defer></script>
+      <script src="error.js" defer></script>
+      <script src="search.js" defer></script>
+      <script src="index.js" defer></script>
+      <script src="particles.min.js"></script>
+      <script src="particles.js"></script>
     <script>
-        let tabs = [];
-        let activeTabId = null;
+        const form = document.getElementById('search-form');
+        const input = document.getElementById('search-input');
 
-        function createNewTab(url = 'search.html') {
-            const id = 'tab-' + Date.now();
-            const tabObj = { id, url };
-            tabs.push(tabObj);
+        // 親(index.html)から呼び出される検索処理
+        window.processSearch = function(q) {
+            const url = __uv$config.prefix + __uv$config.encodeUrl(
+                q.includes('.') ? (q.startsWith('http') ? q : 'https://' + q) : 'https://www.google.com/search?q=' + encodeURIComponent(q)
+            );
+            location.href = url;
+        };
 
-            // Create Tab Element
-            const tabEl = document.createElement('div');
-            tabEl.className = 'tab';
-            tabEl.id = 'trigger-' + id;
-            tabEl.onclick = () => switchTab(id);
-            tabEl.innerHTML = `
-                <span class="tab-title">Loading...</span>
-                <span class="tab-close" onclick="closeTab(event, '${id}')">×</span>
-            `;
-            document.getElementById('tab-bar').insertBefore(tabEl, document.querySelector('.new-tab-btn'));
-
-            // Create Iframe
-            const iframe = document.createElement('iframe');
-            iframe.id = id;
-            iframe.src = url;
-            iframe.onload = () => {
-                hideLoader();
-                updateTabMetadata(id);
-            };
-            document.getElementById('viewport').appendChild(iframe);
-
-            switchTab(id);
-        }
-
-        function switchTab(id) {
-            activeTabId = id;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
-
-            document.getElementById('trigger-' + id).classList.add('active');
-            const activeIframe = document.getElementById(id);
-            activeIframe.classList.add('active');
-
-            // Update Address Bar
-            try {
-                const currentUrl = activeIframe.contentWindow.location.href;
-                if(currentUrl.includes('search.html')) {
-                    document.getElementById('main-address-bar').value = '';
-                } else {
-                    // プロキシURLをデコードして表示するロジックをここに追加可能
-                    document.getElementById('main-address-bar').value = currentUrl;
-                }
-            } catch(e) { 
-                document.getElementById('main-address-bar').value = "Protected Session";
-            }
-        }
-
-        function closeTab(e, id) {
-            e.stopPropagation();
-            if (tabs.length === 1) return;
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const q = input.value;
+            if(!q) return;
             
-            const index = tabs.findIndex(t => t.id === id);
-            tabs.splice(index, 1);
+            // 親にローディング表示を依頼（iframe内から親の関数を呼ぶ）
+            if(window.parent.showLoader) window.parent.showLoader();
             
-            document.getElementById('trigger-' + id).remove();
-            document.getElementById(id).remove();
-
-            if (activeTabId === id) {
-                switchTab(tabs[tabs.length - 1].id);
-            }
-        }
-
-        function updateTabMetadata(id) {
-            const iframe = document.getElementById(id);
-            const tab = document.getElementById('trigger-' + id);
-            try {
-                const title = iframe.contentDocument.title || "New Tab";
-                tab.querySelector('.tab-title').textContent = title;
-            } catch(e) {
-                tab.querySelector('.tab-title').textContent = "Secure Page";
-            }
-        }
-
-        function showLoader() { document.getElementById('global-loader').classList.add('visible'); }
-        function hideLoader() { document.getElementById('global-loader').classList.remove('visible'); }
-
-        function activeIframeAction(action) {
-            const frame = document.getElementById(activeTabId);
-            if(!frame) return;
-            if(action === 'back') frame.contentWindow.history.back();
-            if(action === 'forward') frame.contentWindow.history.forward();
-            if(action === 'reload') frame.contentWindow.location.reload();
-        }
-
-        // Address Bar Logic
-        document.getElementById('main-address-bar').addEventListener('keydown', (e) => {
-            if(e.key === 'Enter') {
-                const val = e.target.value;
-                const frame = document.getElementById(activeTabId);
-                showLoader();
-                
-                // search.htmlに対して検索命令を送る、または直接プロキシ
-                if(frame.contentWindow.processSearch) {
-                    frame.contentWindow.processSearch(val);
-                } else {
-                    // 直接プロキシスクリプトを呼び出す(uv logic)
-                    const url = __uv$config.prefix + __uv$config.encodeUrl(val.includes('.') ? (val.startsWith('http') ? val : 'https://' + val) : 'https://www.google.com/search?q=' + encodeURIComponent(val));
-                    frame.src = url;
-                }
-            }
-        });
-
-        // 初期タブ
-        window.onload = () => createNewTab();
+            processSearch(q);
+        };
     </script>
 </body>
 </html>
