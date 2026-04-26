@@ -19,7 +19,7 @@
 
     <style>
         /* =========================================
-           AbyssV5 Core Architecture Styles
+           AbyssV5 Core Architecture Styles (Iframe Enabled)
            ========================================= */
         :root {
             --bg-base: #030303;
@@ -52,7 +52,7 @@
             overflow: hidden;
         }
 
-        /* --- Perfect Loading Animation --- */
+        /* --- Perfect Initial Loading Animation --- */
         #abyss-loader {
             position: fixed;
             inset: 0;
@@ -105,6 +105,7 @@
             display: flex;
             flex-direction: column;
             width: 100%;
+            z-index: 100;
         }
 
         /* Tab Bar System */
@@ -155,6 +156,7 @@
             border-radius: 50%;
             display: inline-block;
             box-shadow: 0 0 8px var(--accent-glow);
+            flex-shrink: 0;
         }
 
         .tab-title {
@@ -176,6 +178,7 @@
             border-radius: 50%;
             transition: opacity 0.2s, background-color 0.2s;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
         .tab:hover .tab-close { opacity: 1; }
@@ -193,6 +196,7 @@
             font-size: 20px;
             margin-left: 4px;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
 
         .add-tab-btn:hover {
@@ -265,22 +269,39 @@
             letter-spacing: 0.5px;
         }
 
-        /* --- Main Viewport --- */
+        /* --- Main Viewport (Tab Contents) --- */
         .view-container {
             flex: 1;
             position: relative;
-            background-color: var(--bg-base);
-            background-image: radial-gradient(circle at 50% 0%, #111111 0%, transparent 70%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #ffffff; /* For proxied sites */
             overflow: hidden;
         }
 
+        .tab-content {
+            position: absolute;
+            inset: 0;
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .proxy-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #ffffff;
+        }
+
+        /* --- Home Interface (Appears in new tabs) --- */
         .home-interface {
             width: 100%;
-            max-width: 650px;
-            padding: 40px;
+            height: 100%;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, #111111 0%, transparent 70%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -288,7 +309,16 @@
             user-select: text;
         }
 
-        /* --- Perfect CSS 3D Logo --- */
+        .home-wrapper {
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* CSS 3D Logo */
         .abyss-logo {
             position: relative;
             width: 160px;
@@ -333,21 +363,13 @@
             animation: orbit3DReverse 5s linear infinite;
         }
 
-        /* --- Proxy Search Form (Logic Unchanged) --- */
-        #uv-form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
+        /* Search Form within Home */
         .search-wrapper {
             position: relative;
             width: 100%;
         }
 
-        #uv-address {
+        .abyss-address {
             width: 100%;
             padding: 22px 24px 22px 55px;
             border-radius: 12px;
@@ -362,15 +384,11 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
-        #uv-address:focus {
+        .abyss-address:focus {
             border-color: var(--accent-primary);
             background: rgba(25, 25, 25, 0.8);
             box-shadow: 0 0 30px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 210, 255, 0.05);
             transform: translateY(-2px);
-        }
-
-        #uv-address::placeholder {
-            color: #555;
         }
 
         .search-icon {
@@ -384,42 +402,52 @@
             transition: color 0.4s, text-shadow 0.4s;
         }
 
-        #uv-address:focus + .search-icon {
+        .abyss-address:focus + .search-icon {
             color: var(--accent-primary);
             text-shadow: 0 0 8px var(--accent-glow);
         }
 
-        .desc {
-            margin-top: 24px;
-            text-align: center;
-            width: 100%;
+        /* --- Iframe Loading Overlay --- */
+        .iframe-loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
         }
 
-        #uv-error {
-            color: #ff3366;
-            font-size: 14px;
-            margin-bottom: 10px;
-            font-weight: 600;
+        .iframe-loader-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
-        #uv-error-code {
-            color: #aaaaaa;
-            font-size: 12px;
-            background: rgba(0,0,0,0.5);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            display: none;
+        .mini-ring {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--accent-primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        .mini-text {
+            margin-top: 15px;
             font-family: 'Share Tech Mono', monospace;
-            overflow-x: auto;
+            font-size: 12px;
+            color: var(--text-main);
+            letter-spacing: 2px;
         }
-
-        #uv-error-code:not(:empty) { display: block; }
 
         /* Footer */
         .footer {
-            position: absolute;
-            bottom: 24px;
+            margin-top: 40px;
             font-size: 11px;
             color: #444;
             font-family: 'Share Tech Mono', monospace;
@@ -445,125 +473,277 @@
 
     <div class="browser-header">
         <div class="tab-bar" id="tab-bar">
-            <div class="tab active" data-tab="1">
-                <span class="tab-icon"></span>
-                <span class="tab-title">Abyss - Gateway</span>
-                <span class="tab-close" onclick="closeTab(event, this)">×</span>
-            </div>
-            <div class="add-tab-btn" onclick="addNewTab()" title="New Tab">+</div>
+            <div class="add-tab-btn" onclick="AbyssBrowser.createTab()" title="New Tab">+</div>
         </div>
         <div class="nav-bar">
-            <button class="nav-btn" title="Go Back">◀</button>
-            <button class="nav-btn" title="Go Forward">▶</button>
-            <button class="nav-btn" title="Refresh" onclick="location.reload()">↻</button>
+            <button class="nav-btn" title="Go Back" onclick="AbyssBrowser.goBack()">◀</button>
+            <button class="nav-btn" title="Go Forward" onclick="AbyssBrowser.goForward()">▶</button>
+            <button class="nav-btn" title="Refresh" onclick="AbyssBrowser.reload()">↻</button>
             <div class="url-bar-container">
                 <span class="url-icon">✦</span>
-                <input type="text" id="url-display" value="abyss://gateway" readonly />
+                <input type="text" id="url-display" value="abyss://gateway" autocomplete="off" />
             </div>
             <button class="nav-btn" title="More Options">⋮</button>
         </div>
     </div>
 
-    <div class="view-container">
-        <div class="home-interface">
-            <div class="abyss-logo">
-                <div class="logo-orbit-1"></div>
-                <div class="logo-orbit-2"></div>
-                <div class="logo-core">V5</div>
-            </div>
-
-            <form id="uv-form">
-                <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/>
-                <div class="search-wrapper">
-                    <input id="uv-address" type="text" placeholder="Enter URL or search query..." autocomplete="off"/>
-                    <span class="search-icon">⚲</span>
-                </div>
-            </form>
-            
-            <div class="desc left-margin">
-                <p id="uv-error"></p>
-                <pre id="uv-error-code"></pre>
-            </div>
-
-            <div class="footer">
-                &copy; 2026 AbyssV5 Architecture.
-            </div>
+    <div class="view-container" id="view-container">
         </div>
-    </div>
 
     <script src="uv/uv.bundle.js" defer></script>
     <script src="uv/uv.config.js" defer></script>
-    <script src="register-sw.js" defer></script>
-    <script src="error.js" defer></script>
-    <script src="search.js" defer></script>
-    <script src="index.js" defer></script>
+    
+    <form id="uv-form" style="display:none;"><input id="uv-address"></form>
 
     <script>
-        let tabCount = 1;
+        /**
+         * AbyssV5 - Advanced Tabbed Proxy Engine
+         * Handles native-like tab routing via iframes and UV protocol
+         */
+        const AbyssBrowser = (function() {
+            let tabCounter = 0;
+            let activeTabId = null;
+            const tabs = new Map(); // Store tab data
 
-        function addNewTab() {
-            tabCount++;
-            const tabBar = document.getElementById('tab-bar');
-            const addBtn = document.querySelector('.add-tab-btn');
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            
-            const newTab = document.createElement('div');
-            newTab.className = 'tab active';
-            newTab.dataset.tab = tabCount;
-            newTab.innerHTML = `
-                <span class="tab-icon"></span>
-                <span class="tab-title">New Tab</span>
-                <span class="tab-close" onclick="closeTab(event, this)">×</span>
+            // HTML template for the Home screen
+            const homeTemplate = `
+                <div class="home-interface">
+                    <div class="home-wrapper">
+                        <div class="abyss-logo">
+                            <div class="logo-orbit-1"></div>
+                            <div class="logo-orbit-2"></div>
+                            <div class="logo-core">V5</div>
+                        </div>
+                        <form class="abyss-search-form" onsubmit="AbyssBrowser.handleHomeSubmit(event, this)">
+                            <div class="search-wrapper">
+                                <input class="abyss-address" type="text" placeholder="Enter URL or search query..." autocomplete="off"/>
+                                <span class="search-icon">⚲</span>
+                            </div>
+                        </form>
+                        <div class="footer">&copy; 2026 AbyssV5 Architecture.</div>
+                    </div>
+                </div>
             `;
-            
-            newTab.addEventListener('click', function(e) {
-                if(!e.target.classList.contains('tab-close')) {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById('url-display').value = "abyss://newtab";
-                    document.getElementById('uv-address').value = "";
-                }
-            });
 
-            tabBar.insertBefore(newTab, addBtn);
-            document.getElementById('url-display').value = "abyss://newtab";
-            document.getElementById('uv-address').value = "";
-            document.getElementById('uv-address').focus();
-        }
+            // Utility: Check if string is a valid URL
+            function isUrl(val) {
+                if (/^http(s?):\/\//.test(val) || val.includes('.') && val.substr(0, 1) !== ' ') return true;
+                return false;
+            }
 
-        function closeTab(e, element) {
-            e.stopPropagation();
-            const tab = element.parentElement;
-            if(document.querySelectorAll('.tab').length > 1) {
-                if(tab.classList.contains('active')) {
-                    const prev = tab.previousElementSibling;
-                    if(prev && prev.classList.contains('tab')) {
-                        prev.classList.add('active');
-                    } else {
-                        tab.nextElementSibling.classList.add('active');
+            // Register Service Worker
+            async function registerSW() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        await navigator.serviceWorker.register('./sw.js', {
+                            scope: __uv$config.prefix
+                        });
+                    } catch (err) {
+                        console.error('SW Registration Failed:', err);
                     }
                 }
-                tab.remove();
             }
-        }
 
-        // Attach click to the default tab
-        document.querySelector('.tab').addEventListener('click', function(e) {
-            if(!e.target.classList.contains('tab-close')) {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-            }
-        });
+            // Core routing logic (Encoding URL via Ultraviolet)
+            async function navigateTo(url, tabId) {
+                const tabData = tabs.get(tabId);
+                if (!tabData) return;
 
-        // Sync visual UI with the proxy form submission
-        document.getElementById('uv-form').addEventListener('submit', function() {
-            const input = document.getElementById('uv-address').value;
-            if(input) {
-                document.getElementById('url-display').value = "Proxy Session Active";
-                const activeTabTitle = document.querySelector('.tab.active .tab-title');
-                if(activeTabTitle) activeTabTitle.textContent = input;
+                await registerSW();
+
+                // Build search URL if not a direct link
+                let targetUrl = url.trim();
+                if (!isUrl(targetUrl)) {
+                    targetUrl = `https://www.google.com/search?q=${encodeURIComponent(targetUrl)}`;
+                } else if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                    targetUrl = 'https://' + targetUrl;
+                }
+
+                // Encode via UV config
+                const encodedUrl = __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
+
+                // Update UI
+                if (activeTabId === tabId) {
+                    document.getElementById('url-display').value = targetUrl;
+                }
+                
+                // Update Tab Title
+                const titleSpan = tabData.tabElement.querySelector('.tab-title');
+                titleSpan.textContent = targetUrl.replace('https://', '').replace('http://', '').split('/')[0];
+
+                // Setup Iframe if not exists, replace Home View
+                const contentDiv = tabData.contentElement;
+                contentDiv.innerHTML = ''; // Clear Home UI
+                
+                // Create Iframe Loader
+                const loader = document.createElement('div');
+                loader.className = 'iframe-loader-overlay active';
+                loader.innerHTML = `
+                    <div class="mini-ring"></div>
+                    <div class="mini-text">ESTABLISHING SECURE CONNECTION...</div>
+                `;
+                
+                // Create Iframe
+                const iframe = document.createElement('iframe');
+                iframe.className = 'proxy-frame';
+                iframe.src = encodedUrl;
+                
+                // When iframe finishes loading, remove overlay
+                iframe.onload = () => {
+                    loader.classList.remove('active');
+                    // Optional: Try to fetch inner title if same-origin allows, 
+                    // but with proxies it's often blocked by CORS, so we rely on URL.
+                };
+
+                contentDiv.appendChild(iframe);
+                contentDiv.appendChild(loader);
+                tabData.iframe = iframe;
             }
+
+            // Expose Public API
+            return {
+                init: function() {
+                    // Create first default tab
+                    this.createTab();
+
+                    // Listen to Top URL Bar
+                    const urlBar = document.getElementById('url-display');
+                    urlBar.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (activeTabId && urlBar.value) {
+                                navigateTo(urlBar.value, activeTabId);
+                            }
+                        }
+                    });
+                },
+
+                createTab: function() {
+                    tabCounter++;
+                    const id = `tab-${tabCounter}`;
+
+                    // --- Create Tab Element ---
+                    const tabBar = document.getElementById('tab-bar');
+                    const addBtn = document.querySelector('.add-tab-btn');
+                    
+                    const tabEl = document.createElement('div');
+                    tabEl.className = 'tab';
+                    tabEl.dataset.id = id;
+                    tabEl.innerHTML = `
+                        <span class="tab-icon"></span>
+                        <span class="tab-title">Abyss - Gateway</span>
+                        <span class="tab-close" onclick="AbyssBrowser.closeTab(event, '${id}')">×</span>
+                    `;
+                    tabEl.onclick = () => this.switchTab(id);
+
+                    // --- Create Content Element (Default Home) ---
+                    const viewContainer = document.getElementById('view-container');
+                    const contentEl = document.createElement('div');
+                    contentEl.className = 'tab-content';
+                    contentEl.dataset.id = id;
+                    contentEl.innerHTML = homeTemplate;
+
+                    // Save to State
+                    tabs.set(id, {
+                        tabElement: tabEl,
+                        contentElement: contentEl,
+                        iframe: null
+                    });
+
+                    tabBar.insertBefore(tabEl, addBtn);
+                    viewContainer.appendChild(contentEl);
+
+                    this.switchTab(id);
+                },
+
+                switchTab: function(id) {
+                    if (!tabs.has(id)) return;
+
+                    // Deactivate all
+                    tabs.forEach((data) => {
+                        data.tabElement.classList.remove('active');
+                        data.contentElement.classList.remove('active');
+                    });
+
+                    // Activate selected
+                    const activeData = tabs.get(id);
+                    activeData.tabElement.classList.add('active');
+                    activeData.contentElement.classList.add('active');
+                    activeTabId = id;
+
+                    // Update Top URL bar based on state
+                    const urlDisplay = document.getElementById('url-display');
+                    if (activeData.iframe) {
+                        // Reverse engineer the URL from UV encoding for display (if possible), or just keep memory.
+                        // Simplest way: use the tab title which stores the domain, or keep a state variable.
+                        // Here we just set it to the tab title text for clean UI.
+                        urlDisplay.value = activeData.tabElement.querySelector('.tab-title').textContent;
+                    } else {
+                        urlDisplay.value = 'abyss://gateway';
+                    }
+                },
+
+                closeTab: function(e, id) {
+                    e.stopPropagation();
+                    if (tabs.size <= 1) return; // Prevent closing last tab
+
+                    const tabData = tabs.get(id);
+                    
+                    // Logic to switch to adjacent tab if closing active
+                    if (activeTabId === id) {
+                        const tabElements = Array.from(document.querySelectorAll('.tab'));
+                        const currentIndex = tabElements.findIndex(t => t.dataset.id === id);
+                        let nextTab = tabElements[currentIndex - 1] || tabElements[currentIndex + 1];
+                        if (nextTab) {
+                            this.switchTab(nextTab.dataset.id);
+                        }
+                    }
+
+                    // Remove from DOM and State
+                    tabData.tabElement.remove();
+                    tabData.contentElement.remove();
+                    tabs.delete(id);
+                },
+
+                // Called by the form inside the Home screen
+                handleHomeSubmit: function(e, form) {
+                    e.preventDefault();
+                    const input = form.querySelector('.abyss-address').value;
+                    if (input && activeTabId) {
+                        navigateTo(input, activeTabId);
+                    }
+                },
+
+                // Nav Controls (Operates on the active iframe)
+                goBack: function() {
+                    const data = tabs.get(activeTabId);
+                    if (data && data.iframe) {
+                        try { data.iframe.contentWindow.history.back(); } catch(e){}
+                    }
+                },
+
+                goForward: function() {
+                    const data = tabs.get(activeTabId);
+                    if (data && data.iframe) {
+                        try { data.iframe.contentWindow.history.forward(); } catch(e){}
+                    }
+                },
+
+                reload: function() {
+                    const data = tabs.get(activeTabId);
+                    if (data && data.iframe) {
+                        // Show loader again
+                        const loader = data.contentElement.querySelector('.iframe-loader-overlay');
+                        if(loader) loader.classList.add('active');
+                        try { data.iframe.contentWindow.location.reload(); } catch(e){}
+                    }
+                }
+            };
+        })();
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            AbyssBrowser.init();
         });
     </script>
 </body>
