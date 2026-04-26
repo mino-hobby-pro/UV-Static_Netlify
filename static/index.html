@@ -4,1189 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abyss V5 - Nexus Shell</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-chrome: #06080f;
-            --bg-nav: #0a0d14;
-            --bg-tab: #0e1219;
-            --bg-tab-hover: #131822;
-            --bg-tab-active: #161b24;
-            --accent: #00d4ff;
-            --accent-dim: rgba(0, 212, 255, 0.15);
-            --accent-glow: rgba(0, 212, 255, 0.4);
-            --danger: #ff3860;
-            --text-main: #c8cdd5;
-            --text-muted: #5a6270;
-            --text-bright: #ffffff;
-            --border: rgba(255,255,255,0.06);
-            --border-hover: rgba(255,255,255,0.12);
-            --shadow: 0 4px 24px rgba(0,0,0,0.6);
+            --bg-chrome: #050505;
+            --bg-nav: #0f0f0f;
+            --accent: #00d2ff;
+            --accent-gradient: linear-gradient(90deg, #00d2ff, #7a00ff, #ff00c8, #00d2ff);
+            --text-main: #e0e0e0;
+            --border: #222;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-chrome); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-chrome); 
-            color: var(--text-main); 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column;
-            user-select: none;
-        }
-
-        /* ========== TAB BAR ========== */
-        .tab-bar { 
-            display: flex; 
-            background: var(--bg-nav); 
-            padding: 6px 6px 0; 
-            gap: 2px; 
-            align-items: flex-end; 
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            overflow-y: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
-        }
-        .tab-bar::-webkit-scrollbar { height: 3px; }
-        .tab-bar::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
-
+        /* タブバー */
+        .tab-bar { display: flex; background: #000; padding: 8px 8px 0; gap: 4px; align-items: flex-end; border-bottom: 1px solid var(--border); }
         .tab {
-            min-width: 160px; 
-            max-width: 240px; 
-            height: 34px; 
-            background: var(--bg-tab); 
-            border: 1px solid var(--border); 
-            border-bottom: none;
-            border-radius: 10px 10px 0 0; 
-            padding: 0 10px 0 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            cursor: pointer;
-            font-size: 12px; 
-            color: var(--text-muted); 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            flex-shrink: 0;
-            overflow: hidden;
+            min-width: 140px; max-width: 200px; height: 36px; background: var(--bg-nav); border: 1px solid var(--border); border-bottom: none;
+            border-radius: 8px 8px 0 0; padding: 0 12px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+            font-size: 12px; color: #888; transition: 0.2s; position: relative;
         }
+        .tab.active { background: var(--bg-chrome); color: var(--text-main); border-top: 2px solid var(--accent); }
+        .tab:hover:not(.active) { background: #1a1a1a; }
+        .tab-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .tab-close { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.2s; }
+        .tab-close:hover { background: rgba(255,255,255,0.1); color: #ff4444; }
+        .new-tab-btn { padding: 8px 12px; cursor: pointer; color: #888; font-size: 18px; }
 
-        .tab::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: var(--accent);
-            transform: scaleX(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.8;
-        }
-
-        .tab.active { 
-            background: var(--bg-tab-active); 
-            color: var(--text-bright); 
-            box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
-        }
-        .tab.active::before { transform: scaleX(1); }
-
-        .tab:hover:not(.active) { 
-            background: var(--bg-tab-hover); 
-            color: var(--text-main);
-            border-color: var(--border-hover);
-        }
-
-        .tab.dragging { opacity: 0.6; transform: scale(0.95); }
-        .tab.drop-target { border-color: var(--accent); background: var(--accent-dim); }
-
-        .tab-favicon {
-            width: 14px; height: 14px;
-            border-radius: 3px;
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px;
-            background: rgba(255,255,255,0.05);
-        }
-        .tab-favicon img { width: 14px; height: 14px; border-radius: 3px; object-fit: cover; }
-
-        .tab-title { 
-            flex: 1; 
-            overflow: hidden; 
-            white-space: nowrap; 
-            text-overflow: ellipsis;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-        }
-
-        .tab-audio {
-            width: 14px; height: 14px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
-            color: var(--accent);
-            font-size: 11px;
-        }
-        .tab-audio.visible { opacity: 1; }
-
-        .tab-loading {
-            width: 12px; height: 12px;
-            border: 2px solid var(--border-hover);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            flex-shrink: 0;
-            display: none;
-        }
-        .tab-loading.visible { display: block; }
-
-        .tab-close { 
-            width: 18px; height: 18px; 
-            display: flex; align-items: center; justify-content: center; 
-            border-radius: 50%; 
-            transition: all 0.2s; 
-            flex-shrink: 0;
-            opacity: 0;
-            font-size: 14px;
-            line-height: 1;
-        }
-        .tab:hover .tab-close { opacity: 1; }
-        .tab.active .tab-close { opacity: 1; }
-        .tab-close:hover { 
-            background: rgba(255,56,96,0.15); 
-            color: var(--danger); 
-        }
-
-        .tab-pin {
-            font-size: 10px;
-            color: var(--accent);
-            opacity: 0;
-            transition: opacity 0.2s;
-            flex-shrink: 0;
-        }
-        .tab.pinned { min-width: 40px; max-width: 60px; padding: 0 8px; }
-        .tab.pinned .tab-title { display: none; }
-        .tab.pinned .tab-pin { opacity: 1; }
-        .tab.pinned .tab-close { display: none; }
-
-        .new-tab-btn { 
-            padding: 6px 10px; 
-            cursor: pointer; 
-            color: var(--text-muted); 
-            font-size: 18px; 
-            line-height: 1;
-            border-radius: 8px;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            margin-bottom: 2px;
-        }
-        .new-tab-btn:hover { 
-            background: var(--bg-tab-hover); 
-            color: var(--text-bright);
-            transform: scale(1.1);
-        }
-
-        /* ========== NAV BAR ========== */
-        .nav-bar { 
-            background: var(--bg-chrome); 
-            padding: 8px 14px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            border-bottom: 1px solid var(--border);
-        }
-
-        .nav-btns { display: flex; gap: 4px; }
-
-        .btn { 
-            background: none; 
-            border: none; 
-            color: var(--text-muted); 
-            cursor: pointer; 
-            font-size: 15px; 
-            transition: all 0.2s; 
-            width: 30px; 
-            height: 30px; 
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn:hover:not(:disabled) { 
-            background: var(--bg-tab); 
-            color: var(--accent); 
-            transform: translateY(-1px);
-        }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        /* ナビゲーションバー */
+        .nav-bar { background: var(--bg-chrome); padding: 8px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .nav-btns { display: flex; gap: 8px; }
+        .btn { background: none; border: none; color: #888; cursor: pointer; font-size: 16px; transition: 0.2s; width: 32px; height: 32px; border-radius: 50%; }
+        .btn:hover { background: var(--bg-nav); color: var(--accent); }
 
         .address-bar-container {
-            flex: 1; 
-            background: var(--bg-nav); 
-            border: 1px solid var(--border); 
-            border-radius: 10px;
-            height: 34px; 
-            display: flex; 
-            align-items: center; 
-            padding: 0 14px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            gap: 10px;
+            flex: 1; background: var(--bg-nav); border: 1px solid var(--border); border-radius: 20px;
+            height: 36px; display: flex; align-items: center; padding: 0 16px; transition: 0.3s;
         }
-        .address-bar-container:focus-within { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 0 3px var(--accent-dim), 0 0 20px var(--accent-glow);
-            background: var(--bg-tab-active);
-        }
-
-        .address-icon {
-            color: var(--text-muted);
-            font-size: 12px;
-            transition: color 0.2s;
-        }
-        .address-bar-container:focus-within .address-icon { color: var(--accent); }
-
+        .address-bar-container:focus-within { border-color: var(--accent); box-shadow: 0 0 10px rgba(0,210,255,0.2); }
         #main-address-bar {
-            width: 100%; 
-            background: none; 
-            border: none; 
-            color: var(--text-bright); 
-            outline: none; 
-            font-size: 13px; 
-            font-family: 'Inter', sans-serif;
-            letter-spacing: 0.3px;
-        }
-        #main-address-bar::placeholder { color: var(--text-muted); }
-
-        /* ========== VIEWPORT ========== */
-        .viewport { 
-            flex: 1; 
-            position: relative; 
-            background: #000; 
-            overflow: hidden;
+            width: 100%; background: none; border: none; color: #fff; outline: none; font-size: 13px; font-family: 'Inter';
         }
 
-        iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-            display: none; 
-            position: absolute; 
-            inset: 0; 
-        }
+        /* ビューポート */
+        .viewport { flex: 1; position: relative; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; display: none; position: absolute; inset: 0; }
         iframe.active { display: block; }
 
-        /* ========== SUBMARINE LOADER (CANVAS) ========== */
+        /* ローディングアニメーション */
         .loader-overlay {
-            position: absolute; 
-            inset: 0; 
-            background: linear-gradient(180deg, #020408 0%, #0a1020 50%, #020408 100%);
-            z-index: 1000;
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            overflow: hidden;
+            position: absolute; inset: 0; background: var(--bg-chrome); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
         }
         .loader-overlay.visible { display: flex; }
-
-        #submarine-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
+        .nexus-loader {
+            width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid var(--accent);
+            border-radius: 50%; animation: spin 1s linear infinite; position: relative;
         }
-
-        .loader-hud {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-            pointer-events: none;
+        .nexus-loader::after {
+            content: ''; position: absolute; inset: 5px; border: 3px solid transparent;
+            border-top: 3px solid #7a00ff; border-radius: 50%; animation: spin 0.5s linear infinite reverse;
         }
-
-        .loader-status {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--accent);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            opacity: 0.8;
-            text-shadow: 0 0 20px var(--accent-glow);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .loader-depth {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-        }
-
-        .loader-progress-container {
-            width: 280px;
-            height: 2px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .loader-progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s linear infinite;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        /* ========== CONTEXT MENU ========== */
-        .context-menu {
-            position: fixed;
-            background: var(--bg-tab-active);
-            border: 1px solid var(--border-hover);
-            border-radius: 10px;
-            padding: 6px;
-            z-index: 10000;
-            box-shadow: var(--shadow), 0 0 40px rgba(0,0,0,0.4);
-            display: none;
-            min-width: 180px;
-            backdrop-filter: blur(20px);
+        /* レインボーアクセント */
+        .rainbow-line {
+            height: 1px; width: 100%; background: var(--accent-gradient);
+            background-size: 300% 100%; animation: rainbowMove 3s linear infinite;
         }
-        .context-menu.visible { display: block; }
-        .context-item {
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.15s;
-        }
-        .context-item:hover {
-            background: var(--accent-dim);
-            color: var(--accent);
-        }
-        .context-item.danger:hover {
-            background: rgba(255,56,96,0.1);
-            color: var(--danger);
-        }
-        .context-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 6px 0;
-        }
-
-        /* ========== TOOLTIP ========== */
-        .tab-tooltip {
-            position: fixed;
-            background: var(--bg-tab-active);
-            border: 1px solid var(--border-hover);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 11px;
-            color: var(--text-main);
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            box-shadow: var(--shadow);
-            max-width: 300px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .tab-tooltip.visible { opacity: 1; }
+        @keyframes rainbowMove { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="tab-bar" id="tab-bar">
-        <div class="new-tab-btn" onclick="createNewTab()" title="新しいタブ">+</div>
+        <div class="new-tab-btn" onclick="createNewTab()">+</div>
     </div>
-
     <div class="nav-bar">
         <div class="nav-btns">
-            <button class="btn" id="btn-back" onclick="activeIframeAction('back')" title="戻る">←</button>
-            <button class="btn" id="btn-forward" onclick="activeIframeAction('forward')" title="進む">→</button>
-            <button class="btn" id="btn-reload" onclick="activeIframeAction('reload')" title="更新">↻</button>
+            <button class="btn" onclick="activeIframeAction('back')">←</button>
+            <button class="btn" onclick="activeIframeAction('forward')">→</button>
+            <button class="btn" onclick="activeIframeAction('reload')">↻</button>
         </div>
         <div class="address-bar-container">
-            <span class="address-icon">◆</span>
             <input type="text" id="main-address-bar" placeholder="URLを入力または検索..." autocomplete="off">
         </div>
     </div>
+    <div class="rainbow-line"></div>
 
     <div class="viewport" id="viewport">
-        <!-- Submarine Canvas Loader -->
         <div class="loader-overlay" id="global-loader">
-            <canvas id="submarine-canvas"></canvas>
-            <div class="loader-hud">
-                <div class="loader-status" id="loader-status">INITIALIZING DIVE SEQUENCE</div>
-                <div class="loader-progress-container">
-                    <div class="loader-progress-bar" id="loader-progress"></div>
-                </div>
-                <div class="loader-depth" id="loader-depth">DEPTH: 0m</div>
-            </div>
+            <div class="nexus-loader"></div>
         </div>
-    </div>
-
-    <!-- Context Menu -->
-    <div class="context-menu" id="context-menu">
-        <div class="context-item" onclick="contextAction('reload')"><span>↻</span> 再読み込み</div>
-        <div class="context-item" onclick="contextAction('duplicate')"><span>⧉</span> 複製</div>
-        <div class="context-item" onclick="contextAction('pin')" id="ctx-pin"><span>📌</span> ピン留め</div>
-        <div class="context-divider"></div>
-        <div class="context-item" onclick="contextAction('close')"><span>×</span> タブを閉じる</div>
-        <div class="context-item" onclick="contextAction('closeOthers')"><span>⇥</span> 他のタブを閉じる</div>
-        <div class="context-item danger" onclick="contextAction('closeRight')"><span>⇥⇥</span> 右側のタブを閉じる</div>
-    </div>
-
-    <!-- Tooltip -->
-    <div class="tab-tooltip" id="tab-tooltip"></div>
+        </div>
 
     <script src="uv/uv.bundle.js"></script>
     <script src="uv/uv.config.js"></script>
     <script>
-        // ==================== STATE ====================
         let tabs = [];
         let activeTabId = null;
-        let contextTabId = null;
-        let dragSrcEl = null;
-        let loaderProgress = 0;
-        let loaderInterval = null;
-        let submarineAnimId = null;
 
-        // ==================== SUBMARINE CANVAS ANIMATION ====================
-        const canvas = document.getElementById('submarine-canvas');
-        const ctx = canvas.getContext('2d');
-        let canvasW, canvasH;
-        let sonarWaves = [];
-        let bubbles = [];
-        let particles = [];
-        let scanAngle = 0;
-        let time = 0;
-
-        function resizeCanvas() {
-            canvasW = canvas.width = canvas.offsetWidth;
-            canvasH = canvas.height = canvas.offsetHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class SonarWave {
-            constructor() {
-                this.x = canvasW / 2;
-                this.y = canvasH / 2;
-                this.radius = 10;
-                this.maxRadius = Math.max(canvasW, canvasH) * 0.6;
-                this.alpha = 1;
-                this.speed = 1.5;
-                this.lineWidth = 2;
-            }
-            update() {
-                this.radius += this.speed;
-                this.alpha = 1 - (this.radius / this.maxRadius);
-                this.lineWidth = 2 * this.alpha;
-            }
-            draw() {
-                if (this.alpha <= 0) return;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 212, 255, ${this.alpha * 0.4})`;
-                ctx.lineWidth = this.lineWidth;
-                ctx.stroke();
-
-                // Inner glow ring
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius * 0.95, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 212, 255, ${this.alpha * 0.1})`;
-                ctx.lineWidth = this.lineWidth * 4;
-                ctx.stroke();
-            }
-            isDead() { return this.alpha <= 0; }
-        }
-
-        class Bubble {
-            constructor() {
-                this.reset();
-                this.y = canvasH + Math.random() * 100;
-            }
-            reset() {
-                this.x = Math.random() * canvasW;
-                this.y = canvasH + 20;
-                this.size = Math.random() * 2 + 0.5;
-                this.speed = Math.random() * 0.8 + 0.3;
-                this.wobble = Math.random() * Math.PI * 2;
-                this.wobbleSpeed = Math.random() * 0.02 + 0.01;
-                this.alpha = Math.random() * 0.3 + 0.1;
-            }
-            update() {
-                this.y -= this.speed;
-                this.wobble += this.wobbleSpeed;
-                this.x += Math.sin(this.wobble) * 0.3;
-                if (this.y < -10) this.reset();
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 212, 255, ${this.alpha})`;
-                ctx.fill();
-                // Highlight
-                ctx.beginPath();
-                ctx.arc(this.x - this.size*0.3, this.y - this.size*0.3, this.size*0.3, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * 0.5})`;
-                ctx.fill();
-            }
-        }
-
-        class DepthParticle {
-            constructor() {
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * canvasW;
-                this.y = Math.random() * canvasH;
-                this.size = Math.random() * 1.5;
-                this.speedY = Math.random() * 0.2 + 0.05;
-                this.alpha = Math.random() * 0.15;
-            }
-            update() {
-                this.y += this.speedY;
-                if (this.y > canvasH) {
-                    this.y = 0;
-                    this.x = Math.random() * canvasW;
-                }
-            }
-            draw() {
-                ctx.fillStyle = `rgba(100, 150, 200, ${this.alpha})`;
-                ctx.fillRect(this.x, this.y, this.size, this.size);
-            }
-        }
-
-        // Initialize particles
-        for (let i = 0; i < 60; i++) bubbles.push(new Bubble());
-        for (let i = 0; i < 80; i++) particles.push(new DepthParticle());
-
-        function drawSubmarine() {
-            const cx = canvasW / 2;
-            const cy = canvasH / 2;
-            const scale = Math.min(canvasW, canvasH) / 800;
-
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.scale(scale, scale);
-
-            // Gentle floating motion
-            const floatY = Math.sin(time * 0.02) * 8;
-            const floatRot = Math.sin(time * 0.015) * 0.5;
-            ctx.translate(0, floatY);
-            ctx.rotate(floatRot * Math.PI / 180);
-
-            // Submarine shadow/glow
-            ctx.shadowColor = 'rgba(0, 212, 255, 0.3)';
-            ctx.shadowBlur = 30;
-
-            // Main hull
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 120, 35, 0, 0, Math.PI * 2);
-            ctx.fillStyle = '#0d1b2a';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Hull highlight
-            ctx.beginPath();
-            ctx.ellipse(0, -8, 100, 15, 0, 0, Math.PI);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.1)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Conning tower
-            ctx.beginPath();
-            ctx.roundRect(-25, -55, 50, 30, 5);
-            ctx.fillStyle = '#0d1b2a';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Periscope
-            ctx.beginPath();
-            ctx.moveTo(0, -55);
-            ctx.lineTo(0, -75);
-            ctx.lineTo(15, -75);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-
-            // Periscope lens glow
-            ctx.beginPath();
-            ctx.arc(15, -75, 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 212, 255, 0.6)';
-            ctx.shadowColor = 'rgba(0, 212, 255, 0.8)';
-            ctx.shadowBlur = 15;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Propeller
-            const propAngle = time * 0.3;
-            ctx.save();
-            ctx.translate(-120, 0);
-            ctx.rotate(propAngle);
-            for (let i = 0; i < 3; i++) {
-                ctx.save();
-                ctx.rotate((i * Math.PI * 2) / 3);
-                ctx.beginPath();
-                ctx.ellipse(0, -12, 3, 12, 0, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 212, 255, 0.4)';
-                ctx.fill();
-                ctx.restore();
-            }
-            ctx.restore();
-
-            // Tail fins
-            ctx.beginPath();
-            ctx.moveTo(-110, 0);
-            ctx.lineTo(-140, -20);
-            ctx.lineTo(-135, 0);
-            ctx.lineTo(-140, 20);
-            ctx.closePath();
-            ctx.fillStyle = '#0d1b2a';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.25)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            // Windows / Lights
-            const windowPositions = [-60, -20, 20, 60];
-            windowPositions.forEach((wx, i) => {
-                ctx.beginPath();
-                ctx.arc(wx, 2, 6, 0, Math.PI * 2);
-                const glowIntensity = 0.3 + Math.sin(time * 0.05 + i) * 0.1;
-                ctx.fillStyle = `rgba(0, 212, 255, ${glowIntensity})`;
-                ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                // Window frame
-                ctx.beginPath();
-                ctx.arc(wx, 2, 6, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            });
-
-            // Front searchlight beam
-            ctx.save();
-            ctx.globalCompositeOperation = 'screen';
-            ctx.beginPath();
-            ctx.moveTo(115, 0);
-            ctx.lineTo(300, -40);
-            ctx.lineTo(300, 40);
-            ctx.closePath();
-            const beamGrad = ctx.createLinearGradient(115, 0, 300, 0);
-            beamGrad.addColorStop(0, 'rgba(0, 212, 255, 0.15)');
-            beamGrad.addColorStop(1, 'rgba(0, 212, 255, 0)');
-            ctx.fillStyle = beamGrad;
-            ctx.fill();
-            ctx.restore();
-
-            // HUD rings around submarine
-            ctx.beginPath();
-            ctx.arc(0, 0, 160, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(0, 212, 255, ${0.1 + Math.sin(time * 0.03) * 0.05})`;
-            ctx.lineWidth = 1;
-            ctx.setLineDash([8, 12]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Rotating HUD arc
-            ctx.beginPath();
-            ctx.arc(0, 0, 160, time * 0.01, time * 0.01 + Math.PI * 0.5);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Crosshair
-            const crossSize = 180;
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.15)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(-crossSize, 0); ctx.lineTo(crossSize, 0);
-            ctx.moveTo(0, -crossSize); ctx.lineTo(0, crossSize);
-            ctx.stroke();
-
-            ctx.restore();
-        }
-
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
-            ctx.lineWidth = 1;
-            const gridSize = 40;
-            const offset = (time * 0.5) % gridSize;
-
-            for (let x = 0; x < canvasW; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvasH);
-                ctx.stroke();
-            }
-            for (let y = offset; y < canvasH; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvasW, y);
-                ctx.stroke();
-            }
-        }
-
-        function animateSubmarine() {
-            if (!document.getElementById('global-loader').classList.contains('visible')) {
-                submarineAnimId = requestAnimationFrame(animateSubmarine);
-                return;
-            }
-
-            ctx.clearRect(0, 0, canvasW, canvasH);
-            time++;
-
-            // Background gradient
-            const bgGrad = ctx.createRadialGradient(
-                canvasW/2, canvasH/2, 0,
-                canvasW/2, canvasH/2, Math.max(canvasW, canvasH)
-            );
-            bgGrad.addColorStop(0, 'rgba(10, 25, 45, 0.3)');
-            bgGrad.addColorStop(1, 'rgba(2, 4, 8, 0)');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, canvasW, canvasH);
-
-            drawGrid();
-
-            // Depth particles
-            particles.forEach(p => { p.update(); p.draw(); });
-
-            // Sonar waves
-            if (time % 120 === 0) sonarWaves.push(new SonarWave());
-            sonarWaves = sonarWaves.filter(w => !w.isDead());
-            sonarWaves.forEach(w => { w.update(); w.draw(); });
-
-            // Bubbles
-            bubbles.forEach(b => { b.update(); b.draw(); });
-
-            // Submarine
-            drawSubmarine();
-
-            // Scan line overlay
-            const scanY = (time * 2) % canvasH;
-            ctx.beginPath();
-            ctx.moveTo(0, scanY);
-            ctx.lineTo(canvasW, scanY);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.08)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Vignette
-            const vigGrad = ctx.createRadialGradient(
-                canvasW/2, canvasH/2, canvasH * 0.3,
-                canvasW/2, canvasH/2, canvasH * 0.8
-            );
-            vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
-            vigGrad.addColorStop(1, 'rgba(0,0,0,0.6)');
-            ctx.fillStyle = vigGrad;
-            ctx.fillRect(0, 0, canvasW, canvasH);
-
-            submarineAnimId = requestAnimationFrame(animateSubmarine);
-        }
-        animateSubmarine();
-
-        // ==================== LOADER CONTROL ====================
-        const loaderStatuses = [
-            "INITIALIZING DIVE SEQUENCE",
-            "PRESSURIZING HULL",
-            "CALIBRATING SONAR ARRAY",
-            "ESTABLISHING SECURE CONNECTION",
-            "DESCENDING TO OPERATIONAL DEPTH",
-            "SCANNING PERIMETER",
-            "ACQUIRING TARGET SIGNAL",
-            "NEGOTIATING SECURE HANDSHAKE",
-            "ROUTE ESTABLISHED"
-        ];
-
-        function showLoader() {
-            const overlay = document.getElementById('global-loader');
-            overlay.classList.add('visible');
-            loaderProgress = 0;
-            document.getElementById('loader-progress').style.width = '0%';
-
-            let statusIdx = 0;
-            document.getElementById('loader-status').textContent = loaderStatuses[0];
-
-            if (loaderInterval) clearInterval(loaderInterval);
-            loaderInterval = setInterval(() => {
-                loaderProgress += Math.random() * 12 + 3;
-                if (loaderProgress > 95) loaderProgress = 95;
-                document.getElementById('loader-progress').style.width = loaderProgress + '%';
-                document.getElementById('loader-depth').textContent = `DEPTH: ${Math.floor(loaderProgress * 12)}m`;
-
-                const newIdx = Math.min(Math.floor(loaderProgress / 12), loaderStatuses.length - 1);
-                if (newIdx !== statusIdx) {
-                    statusIdx = newIdx;
-                    document.getElementById('loader-status').textContent = loaderStatuses[statusIdx];
-                }
-            }, 200);
-        }
-
-        function hideLoader() {
-            document.getElementById('loader-progress').style.width = '100%';
-            document.getElementById('loader-status').textContent = "CONNECTION ESTABLISHED";
-            document.getElementById('loader-depth').textContent = `DEPTH: ${Math.floor(Math.random() * 200 + 800)}m`;
-
-            setTimeout(() => {
-                document.getElementById('global-loader').classList.remove('visible');
-                if (loaderInterval) clearInterval(loaderInterval);
-            }, 600);
-        }
-
-        // ==================== TAB SYSTEM ====================
         function createNewTab(url = 'search.html') {
-            const id = 'tab-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
-            const tabObj = { id, url, pinned: false, loading: true };
+            const id = 'tab-' + Date.now();
+            const tabObj = { id, url };
             tabs.push(tabObj);
 
+            // Create Tab Element
             const tabEl = document.createElement('div');
             tabEl.className = 'tab';
             tabEl.id = 'trigger-' + id;
-            tabEl.draggable = true;
-            tabEl.dataset.tabId = id;
-
+            tabEl.onclick = () => switchTab(id);
             tabEl.innerHTML = `
-                <span class="tab-pin">📌</span>
-                <span class="tab-favicon"><span>◆</span></span>
-                <span class="tab-title">New Tab</span>
-                <span class="tab-audio">🔊</span>
-                <span class="tab-loading visible"></span>
+                <span class="tab-title">Loading...</span>
                 <span class="tab-close" onclick="closeTab(event, '${id}')">×</span>
             `;
+            document.getElementById('tab-bar').insertBefore(tabEl, document.querySelector('.new-tab-btn'));
 
-            // Events
-            tabEl.addEventListener('click', () => switchTab(id));
-            tabEl.addEventListener('contextmenu', (e) => showContextMenu(e, id));
-            tabEl.addEventListener('mouseenter', (e) => showTooltip(e, id));
-            tabEl.addEventListener('mouseleave', hideTooltip);
-            tabEl.addEventListener('dblclick', () => togglePinTab(id));
-
-            // Drag & Drop
-            tabEl.addEventListener('dragstart', handleDragStart);
-            tabEl.addEventListener('dragover', handleDragOver);
-            tabEl.addEventListener('drop', handleDrop);
-            tabEl.addEventListener('dragend', handleDragEnd);
-
-            const newTabBtn = document.querySelector('.new-tab-btn');
-            document.getElementById('tab-bar').insertBefore(tabEl, newTabBtn);
-
+            // Create Iframe
             const iframe = document.createElement('iframe');
             iframe.id = id;
             iframe.src = url;
             iframe.onload = () => {
-                tabObj.loading = false;
-                const loadingEl = tabEl.querySelector('.tab-loading');
-                if (loadingEl) loadingEl.classList.remove('visible');
                 hideLoader();
                 updateTabMetadata(id);
-                updateNavButtons();
             };
             document.getElementById('viewport').appendChild(iframe);
 
             switchTab(id);
-            showLoader();
         }
 
         function switchTab(id) {
-            if (!tabs.find(t => t.id === id)) return;
             activeTabId = id;
-
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
 
-            const trigger = document.getElementById('trigger-' + id);
-            const iframe = document.getElementById(id);
-            if (trigger) trigger.classList.add('active');
-            if (iframe) iframe.classList.add('active');
+            document.getElementById('trigger-' + id).classList.add('active');
+            const activeIframe = document.getElementById(id);
+            activeIframe.classList.add('active');
 
-            updateAddressBar();
-            updateNavButtons();
-        }
-
-        function closeTab(e, id) {
-            if (e) e.stopPropagation();
-            const tabObj = tabs.find(t => t.id === id);
-            if (!tabObj) return;
-            if (tabs.length === 1 && !tabObj.pinned) {
-                createNewTab();
-                closeTab(null, id);
-                return;
-            }
-
-            const index = tabs.findIndex(t => t.id === id);
-            tabs.splice(index, 1);
-
-            const trigger = document.getElementById('trigger-' + id);
-            const iframe = document.getElementById(id);
-            if (trigger) trigger.remove();
-            if (iframe) iframe.remove();
-
-            if (activeTabId === id) {
-                const newIndex = Math.min(index, tabs.length - 1);
-                if (tabs[newIndex]) switchTab(tabs[newIndex].id);
-            }
-            updateNavButtons();
-        }
-
-        function togglePinTab(id) {
-            const tabObj = tabs.find(t => t.id === id);
-            const tabEl = document.getElementById('trigger-' + id);
-            if (!tabObj || !tabEl) return;
-
-            tabObj.pinned = !tabObj.pinned;
-            tabEl.classList.toggle('pinned', tabObj.pinned);
-
-            // Move pinned tabs to the left
-            if (tabObj.pinned) {
-                const firstUnpinned = tabs.findIndex(t => !t.pinned);
-                if (firstUnpinned > -1) {
-                    const currentIdx = tabs.findIndex(t => t.id === id);
-                    tabs.splice(currentIdx, 1);
-                    tabs.splice(firstUnpinned, 0, tabObj);
-                    reorderTabs();
-                }
-            }
-        }
-
-        function reorderTabs() {
-            const bar = document.getElementById('tab-bar');
-            const newTabBtn = document.querySelector('.new-tab-btn');
-            tabs.forEach(t => {
-                const el = document.getElementById('trigger-' + t.id);
-                if (el) bar.insertBefore(el, newTabBtn);
-            });
-        }
-
-        function updateTabMetadata(id) {
-            const iframe = document.getElementById(id);
-            const tab = document.getElementById('trigger-' + id);
-            if (!iframe || !tab) return;
-
+            // Update Address Bar
             try {
-                const title = iframe.contentDocument.title || "New Tab";
-                tab.querySelector('.tab-title').textContent = title;
-
-                // Try to get favicon
-                const faviconLink = iframe.contentDocument.querySelector('link[rel*="icon"]');
-                if (faviconLink) {
-                    const faviconUrl = faviconLink.href;
-                    tab.querySelector('.tab-favicon').innerHTML = `<img src="${faviconUrl}" onerror="this.parentElement.innerHTML='<span>◆</span>'">`;
-                }
-            } catch(e) {
-                tab.querySelector('.tab-title').textContent = "Secure Session";
-            }
-        }
-
-        function updateAddressBar() {
-            const frame = document.getElementById(activeTabId);
-            if (!frame) return;
-            try {
-                const currentUrl = frame.contentWindow.location.href;
-                const bar = document.getElementById('main-address-bar');
-                if (currentUrl.includes('search.html')) {
-                    bar.value = '';
+                const currentUrl = activeIframe.contentWindow.location.href;
+                if(currentUrl.includes('search.html')) {
+                    document.getElementById('main-address-bar').value = '';
                 } else {
-                    bar.value = currentUrl;
+                    // プロキシURLをデコードして表示するロジックをここに追加可能
+                    document.getElementById('main-address-bar').value = currentUrl;
                 }
             } catch(e) { 
                 document.getElementById('main-address-bar').value = "Protected Session";
             }
         }
 
-        function updateNavButtons() {
-            const frame = document.getElementById(activeTabId);
-            const canGoBack = frame && frame.contentWindow && frame.contentWindow.history.length > 1;
-            document.getElementById('btn-back').disabled = !canGoBack;
-        }
-
-        // ==================== DRAG & DROP ====================
-        function handleDragStart(e) {
-            dragSrcEl = this;
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', this.dataset.tabId);
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            const target = e.target.closest('.tab');
-            if (target && target !== dragSrcEl) {
-                target.classList.add('drop-target');
-            }
-        }
-
-        function handleDrop(e) {
+        function closeTab(e, id) {
             e.stopPropagation();
-            const target = e.target.closest('.tab');
-            if (dragSrcEl && target && dragSrcEl !== target) {
-                const srcId = dragSrcEl.dataset.tabId;
-                const targetId = target.dataset.tabId;
-                const srcIdx = tabs.findIndex(t => t.id === srcId);
-                const targetIdx = tabs.findIndex(t => t.id === targetId);
+            if (tabs.length === 1) return;
+            
+            const index = tabs.findIndex(t => t.id === id);
+            tabs.splice(index, 1);
+            
+            document.getElementById('trigger-' + id).remove();
+            document.getElementById(id).remove();
 
-                if (srcIdx > -1 && targetIdx > -1) {
-                    const [moved] = tabs.splice(srcIdx, 1);
-                    tabs.splice(targetIdx, 0, moved);
-                    reorderTabs();
-                }
+            if (activeTabId === id) {
+                switchTab(tabs[tabs.length - 1].id);
             }
-            return false;
         }
 
-        function handleDragEnd() {
-            this.classList.remove('dragging');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('drop-target'));
-            dragSrcEl = null;
-        }
-
-        // ==================== CONTEXT MENU ====================
-        function showContextMenu(e, id) {
-            e.preventDefault();
-            contextTabId = id;
-            const menu = document.getElementById('context-menu');
-            const tabObj = tabs.find(t => t.id === id);
-
-            document.getElementById('ctx-pin').innerHTML = 
-                `<span>${tabObj.pinned ? '🔓' : '📌'}</span> ${tabObj.pinned ? 'ピン留め解除' : 'ピン留め'}`;
-
-            menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
-            menu.style.top = Math.min(e.clientY, window.innerHeight - 200) + 'px';
-            menu.classList.add('visible');
-        }
-
-        function contextAction(action) {
-            const menu = document.getElementById('context-menu');
-            menu.classList.remove('visible');
-            if (!contextTabId) return;
-
-            switch(action) {
-                case 'reload':
-                    const frame = document.getElementById(contextTabId);
-                    if (frame) frame.contentWindow.location.reload();
-                    break;
-                case 'duplicate':
-                    const tabObj = tabs.find(t => t.id === contextTabId);
-                    if (tabObj) createNewTab(tabObj.url);
-                    break;
-                case 'pin':
-                    togglePinTab(contextTabId);
-                    break;
-                case 'close':
-                    closeTab(null, contextTabId);
-                    break;
-                case 'closeOthers':
-                    tabs.filter(t => t.id !== contextTabId).forEach(t => closeTab(null, t.id));
-                    break;
-                case 'closeRight':
-                    const idx = tabs.findIndex(t => t.id === contextTabId);
-                    tabs.slice(idx + 1).forEach(t => closeTab(null, t.id));
-                    break;
+        function updateTabMetadata(id) {
+            const iframe = document.getElementById(id);
+            const tab = document.getElementById('trigger-' + id);
+            try {
+                const title = iframe.contentDocument.title || "New Tab";
+                tab.querySelector('.tab-title').textContent = title;
+            } catch(e) {
+                tab.querySelector('.tab-title').textContent = "Secure Page";
             }
-            contextTabId = null;
         }
 
-        document.addEventListener('click', () => {
-            document.getElementById('context-menu').classList.remove('visible');
-        });
+        function showLoader() { document.getElementById('global-loader').classList.add('visible'); }
+        function hideLoader() { document.getElementById('global-loader').classList.remove('visible'); }
 
-        // ==================== TOOLTIP ====================
-        function showTooltip(e, id) {
-            const tabObj = tabs.find(t => t.id === id);
-            const tabEl = document.getElementById('trigger-' + id);
-            if (!tabObj || !tabEl) return;
-
-            const tooltip = document.getElementById('tab-tooltip');
-            const title = tabEl.querySelector('.tab-title').textContent;
-            tooltip.textContent = title;
-
-            const rect = tabEl.getBoundingClientRect();
-            tooltip.style.left = rect.left + 'px';
-            tooltip.style.top = (rect.bottom + 6) + 'px';
-            tooltip.classList.add('visible');
-        }
-
-        function hideTooltip() {
-            document.getElementById('tab-tooltip').classList.remove('visible');
-        }
-
-        // ==================== NAV ACTIONS ====================
         function activeIframeAction(action) {
             const frame = document.getElementById(activeTabId);
-            if (!frame) return;
-            try {
-                if (action === 'back') frame.contentWindow.history.back();
-                if (action === 'forward') frame.contentWindow.history.forward();
-                if (action === 'reload') frame.contentWindow.location.reload();
-            } catch(e) {}
+            if(!frame) return;
+            if(action === 'back') frame.contentWindow.history.back();
+            if(action === 'forward') frame.contentWindow.history.forward();
+            if(action === 'reload') frame.contentWindow.location.reload();
         }
 
-        // ==================== ADDRESS BAR ====================
+        // Address Bar Logic
         document.getElementById('main-address-bar').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = e.target.value.trim();
+            if(e.key === 'Enter') {
+                const val = e.target.value;
                 const frame = document.getElementById(activeTabId);
-                if (!frame) return;
-
                 showLoader();
-
-                if (frame.contentWindow.processSearch) {
+                
+                // search.htmlに対して検索命令を送る、または直接プロキシ
+                if(frame.contentWindow.processSearch) {
                     frame.contentWindow.processSearch(val);
                 } else {
-                    const url = __uv$config.prefix + __uv$config.encodeUrl(
-                        val.includes('.') 
-                            ? (val.startsWith('http') ? val : 'https://' + val) 
-                            : 'https://www.google.com/search?q=' + encodeURIComponent(val)
-                    );
+                    // 直接プロキシスクリプトを呼び出す(uv logic)
+                    const url = __uv$config.prefix + __uv$config.encodeUrl(val.includes('.') ? (val.startsWith('http') ? val : 'https://' + val) : 'https://www.google.com/search?q=' + encodeURIComponent(val));
                     frame.src = url;
                 }
             }
         });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                if (e.key === 't') { e.preventDefault(); createNewTab(); }
-                if (e.key === 'w') { e.preventDefault(); closeTab(null, activeTabId); }
-                if (e.key === 'Tab') { 
-                    e.preventDefault();
-                    const idx = tabs.findIndex(t => t.id === activeTabId);
-                    const next = e.shiftKey 
-                        ? (idx - 1 + tabs.length) % tabs.length 
-                        : (idx + 1) % tabs.length;
-                    if (tabs[next]) switchTab(tabs[next].id);
-                }
-            }
-        });
-
-        // ==================== INIT ====================
-        window.onload = () => {
-            createNewTab();
-            updateNavButtons();
-        };
+        // 初期タブ
+        window.onload = () => createNewTab();
     </script>
 </body>
 </html>
