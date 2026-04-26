@@ -74,8 +74,14 @@
     </div>
     <div class="hint">Secure Proxy Architecture v5.2</div>
 
-    <script src="uv/uv.bundle.js"></script>
-    <script src="uv/uv.config.js"></script>
+      <script src="uv/uv.bundle.js" defer></script>
+      <script src="uv/uv.config.js" defer></script>
+      <script src="register-sw.js" defer></script>
+      <script src="error.js" defer></script>
+      <script src="search.js" defer></script>
+      <script src="index.js" defer></script>
+      <script src="particles.min.js"></script>
+      <script src="particles.js"></script>
     <script>
         const form = document.getElementById('search-form');
         const input = document.getElementById('search-input');
