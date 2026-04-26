@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Redirect Page</title>
+  <title>INDEX</title>
   <script>
-    window.onload = function(){
-      window.location.href = "/static/"; 
+    window.onload = function() {
+      var delay = Math.random() * 3000; 
+      setTimeout(function() {
+        window.location.href = "/static/";
+      }, delay);
     };
   </script>
 </head>
