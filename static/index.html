@@ -9,210 +9,672 @@
         :root {
             --bg-chrome: #050505;
             --bg-nav: #0f0f0f;
+            --bg-tab: #101010;
+            --bg-tab-hover: #181818;
             --accent: #00d2ff;
-            --accent-gradient: linear-gradient(90deg, #00d2ff, #7a00ff, #ff00c8, #00d2ff);
+            --accent-2: #7a00ff;
+            --accent-3: #ff00c8;
             --text-main: #e0e0e0;
+            --text-muted: #888;
             --border: #222;
+            --danger: #ff4b6b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-chrome); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #101018 0, #020204 45%, #000 100%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
         /* タブバー */
-        .tab-bar { display: flex; background: #000; padding: 8px 8px 0; gap: 4px; align-items: flex-end; border-bottom: 1px solid var(--border); }
-        .tab {
-            min-width: 140px; max-width: 200px; height: 36px; background: var(--bg-nav); border: 1px solid var(--border); border-bottom: none;
-            border-radius: 8px 8px 0 0; padding: 0 12px; display: flex; align-items: center; gap: 8px; cursor: pointer;
-            font-size: 12px; color: #888; transition: 0.2s; position: relative;
+        .tab-bar {
+            display: flex;
+            background: #000;
+            padding: 8px 8px 0;
+            gap: 4px;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            z-index: 5;
         }
-        .tab.active { background: var(--bg-chrome); color: var(--text-main); border-top: 2px solid var(--accent); }
-        .tab:hover:not(.active) { background: #1a1a1a; }
-        .tab-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .tab-close { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.2s; }
-        .tab-close:hover { background: rgba(255,255,255,0.1); color: #ff4444; }
-        .new-tab-btn { padding: 8px 12px; cursor: pointer; color: #888; font-size: 18px; }
+
+        .tab {
+            min-width: 150px;
+            max-width: 240px;
+            height: 34px;
+            background: var(--bg-tab);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 9px 9px 0 0;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: 0.18s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border: 1px solid transparent;
+            background: linear-gradient(120deg, rgba(0,210,255,0.0), rgba(122,0,255,0.35), rgba(255,0,200,0.0));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease-out;
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--bg-tab-hover);
+            color: #b0b0b0;
+        }
+
+        .tab.active {
+            background: var(--bg-chrome);
+            color: var(--text-main);
+            border-top: 2px solid var(--accent);
+            border-left-color: #333;
+            border-right-color: #333;
+            box-shadow: 0 0 18px rgba(0,210,255,0.25);
+        }
+
+        .tab.active::before {
+            opacity: 1;
+        }
+
+        .tab-title {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .tab-favicon {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            background: radial-gradient(circle at 30% 0, #fff 0, #00d2ff 35%, #000 100%);
+            flex-shrink: 0;
+        }
+
+        .tab-close {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: 0.15s;
+            font-size: 13px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .tab-close:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--danger);
+        }
+
+        .new-tab-btn {
+            padding: 0 10px 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 18px;
+            border-radius: 999px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            transition: 0.18s;
+        }
+
+        .new-tab-btn:hover {
+            border-color: var(--border);
+            background: #111;
+            color: var(--accent);
+        }
+
+        /* タブ内ローディングバー */
+        .tab-loading-bar {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+            background-size: 200% 100%;
+            transform-origin: left;
+            transform: scaleX(0);
+            opacity: 0;
+            transition: opacity 0.15s ease-out;
+        }
+
+        .tab.loading .tab-loading-bar {
+            opacity: 1;
+            animation: tabLoading 1.2s ease-out infinite;
+        }
+
+        @keyframes tabLoading {
+            0%   { transform: scaleX(0.1); background-position: 0% 50%; }
+            50%  { transform: scaleX(0.9); background-position: 100% 50%; }
+            100% { transform: scaleX(0.2); background-position: 0% 50%; }
+        }
 
         /* ナビゲーションバー */
-        .nav-bar { background: var(--bg-chrome); padding: 8px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
-        .nav-btns { display: flex; gap: 8px; }
-        .btn { background: none; border: none; color: #888; cursor: pointer; font-size: 16px; transition: 0.2s; width: 32px; height: 32px; border-radius: 50%; }
-        .btn:hover { background: var(--bg-nav); color: var(--accent); }
+        .nav-bar {
+            background: rgba(5,5,5,0.96);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            z-index: 4;
+        }
+
+        .nav-btns { display: flex; gap: 6px; }
+
+        .btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.18s;
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--bg-nav);
+            color: var(--accent);
+        }
+
+        .btn:active {
+            transform: translateY(1px) scale(0.97);
+        }
 
         .address-bar-container {
-            flex: 1; background: var(--bg-nav); border: 1px solid var(--border); border-radius: 20px;
-            height: 36px; display: flex; align-items: center; padding: 0 16px; transition: 0.3s;
+            flex: 1;
+            background: var(--bg-nav);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            transition: 0.25s;
+            position: relative;
+            overflow: hidden;
         }
-        .address-bar-container:focus-within { border-color: var(--accent); box-shadow: 0 0 10px rgba(0,210,255,0.2); }
+
+        .address-bar-container::before {
+            content: 'NEXUS://';
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #555;
+            margin-right: 6px;
+        }
+
+        .address-bar-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(0,210,255,0.3), 0 0 18px rgba(0,210,255,0.25);
+        }
+
         #main-address-bar {
-            width: 100%; background: none; border: none; color: #fff; outline: none; font-size: 13px; font-family: 'Inter';
+            width: 100%;
+            background: none;
+            border: none;
+            color: #fff;
+            outline: none;
+            font-size: 13px;
+            font-family: 'Inter';
+        }
+
+        #main-address-bar::placeholder {
+            color: #555;
         }
 
         /* ビューポート */
-        .viewport { flex: 1; position: relative; background: #000; }
-        iframe { width: 100%; height: 100%; border: none; display: none; position: absolute; inset: 0; }
-        iframe.active { display: block; }
+        .viewport {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
 
-        /* ローディングアニメーション */
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+            position: absolute;
+            inset: 0;
+        }
+
+        iframe.active {
+            display: block;
+        }
+
+        /* グローバルローディングオーバーレイ */
         .loader-overlay {
-            position: absolute; inset: 0; background: var(--bg-chrome); z-index: 100;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(0,210,255,0.08), rgba(0,0,0,0.96));
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
         }
-        .loader-overlay.visible { display: flex; }
-        .nexus-loader {
-            width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid var(--accent);
-            border-radius: 50%; animation: spin 1s linear infinite; position: relative;
-        }
-        .nexus-loader::after {
-            content: ''; position: absolute; inset: 5px; border: 3px solid transparent;
-            border-top: 3px solid #7a00ff; border-radius: 50%; animation: spin 0.5s linear infinite reverse;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* レインボーアクセント */
-        .rainbow-line {
-            height: 1px; width: 100%; background: var(--accent-gradient);
-            background-size: 300% 100%; animation: rainbowMove 3s linear infinite;
+        .loader-overlay.visible {
+            display: flex;
         }
-        @keyframes rainbowMove { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        .nexus-loader-core {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 30% 0, rgba(255,255,255,0.9) 0, rgba(255,255,255,0) 40%),
+                radial-gradient(circle at 50% 50%, rgba(0,210,255,0.4) 0, rgba(0,0,0,0.0) 60%);
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,210,255,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nexus-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--accent);
+            border-right-color: rgba(122,0,255,0.7);
+            animation: spin 1.1s linear infinite;
+        }
+
+        .nexus-ring:nth-child(2) {
+            inset: -14px;
+            border-top-color: rgba(255,0,200,0.9);
+            border-left-color: rgba(0,210,255,0.5);
+            animation-duration: 1.8s;
+            animation-direction: reverse;
+        }
+
+        .nexus-pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 18px rgba(0,210,255,0.9);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .loader-text {
+            margin-top: 18px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #aaa;
+        }
+
+        .loader-subtext {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #555;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .loader-progress-bar {
+            margin-top: 18px;
+            width: 220px;
+            height: 3px;
+            border-radius: 999px;
+            background: #111;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loader-progress-inner {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+            background-size: 200% 100%;
+            transform-origin: left;
+            animation: loaderProgress 1.4s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%   { transform: scale(0.9); opacity: 0.6; }
+            50%  { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        @keyframes loaderProgress {
+            0%   { transform: scaleX(0.1); background-position: 0% 50%; }
+            50%  { transform: scaleX(0.95); background-position: 100% 50%; }
+            100% { transform: scaleX(0.2); background-position: 0% 50%; }
+        }
     </style>
 </head>
 <body>
     <div class="tab-bar" id="tab-bar">
-        <div class="new-tab-btn" onclick="createNewTab()">+</div>
+        <div class="new-tab-btn" id="new-tab-btn">+</div>
     </div>
+
     <div class="nav-bar">
         <div class="nav-btns">
-            <button class="btn" onclick="activeIframeAction('back')">←</button>
-            <button class="btn" onclick="activeIframeAction('forward')">→</button>
-            <button class="btn" onclick="activeIframeAction('reload')">↻</button>
+            <button class="btn" id="btn-back">←</button>
+            <button class="btn" id="btn-forward">→</button>
+            <button class="btn" id="btn-reload">↻</button>
         </div>
         <div class="address-bar-container">
             <input type="text" id="main-address-bar" placeholder="URLを入力または検索..." autocomplete="off">
         </div>
     </div>
-    <div class="rainbow-line"></div>
 
     <div class="viewport" id="viewport">
         <div class="loader-overlay" id="global-loader">
-            <div class="nexus-loader"></div>
+            <div class="nexus-loader-core">
+                <div class="nexus-ring"></div>
+                <div class="nexus-ring"></div>
+                <div class="nexus-pulse-dot"></div>
+            </div>
+            <div class="loader-text">NEXUS CORE / LINK NEGOTIATION</div>
+            <div class="loader-subtext" id="loader-subtext">routing traffic through ultraviolet mesh...</div>
+            <div class="loader-progress-bar">
+                <div class="loader-progress-inner"></div>
+            </div>
         </div>
-        </div>
+    </div>
 
     <script src="uv/uv.bundle.js"></script>
     <script src="uv/uv.config.js"></script>
     <script>
         let tabs = [];
         let activeTabId = null;
+        let loaderMessages = [
+            "routing traffic through ultraviolet mesh...",
+            "stabilizing encrypted tunnel...",
+            "synchronizing abyssal cache layers...",
+            "negotiating TLS with remote endpoint...",
+            "optimizing quantum route heuristics..."
+        ];
+        let loaderMsgIndex = 0;
+        let loaderMsgTimer = null;
+
+        const tabBarEl = document.getElementById('tab-bar');
+        const viewportEl = document.getElementById('viewport');
+        const addressBarEl = document.getElementById('main-address-bar');
+        const globalLoaderEl = document.getElementById('global-loader');
+        const loaderSubtextEl = document.getElementById('loader-subtext');
+
+        function startLoader() {
+            if (!globalLoaderEl.classList.contains('visible')) {
+                globalLoaderEl.classList.add('visible');
+                loaderMsgIndex = 0;
+                loaderSubtextEl.textContent = loaderMessages[loaderMsgIndex];
+                loaderMsgTimer = setInterval(() => {
+                    loaderMsgIndex = (loaderMsgIndex + 1) % loaderMessages.length;
+                    loaderSubtextEl.textContent = loaderMessages[loaderMsgIndex];
+                }, 1200);
+            }
+        }
+
+        function stopLoader() {
+            globalLoaderEl.classList.remove('visible');
+            if (loaderMsgTimer) {
+                clearInterval(loaderMsgTimer);
+                loaderMsgTimer = null;
+            }
+        }
+
+        function markTabLoading(id, isLoading) {
+            const tabEl = document.getElementById('trigger-' + id);
+            if (!tabEl) return;
+            if (isLoading) {
+                tabEl.classList.add('loading');
+            } else {
+                tabEl.classList.remove('loading');
+            }
+        }
 
         function createNewTab(url = 'search.html') {
             const id = 'tab-' + Date.now();
             const tabObj = { id, url };
             tabs.push(tabObj);
 
-            // Create Tab Element
             const tabEl = document.createElement('div');
             tabEl.className = 'tab';
             tabEl.id = 'trigger-' + id;
-            tabEl.onclick = () => switchTab(id);
             tabEl.innerHTML = `
+                <div class="tab-favicon"></div>
                 <span class="tab-title">Loading...</span>
-                <span class="tab-close" onclick="closeTab(event, '${id}')">×</span>
+                <span class="tab-close">×</span>
+                <div class="tab-loading-bar"></div>
             `;
-            document.getElementById('tab-bar').insertBefore(tabEl, document.querySelector('.new-tab-btn'));
 
-            // Create Iframe
+            tabEl.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tab-close')) return;
+                switchTab(id);
+            });
+
+            // 中クリックでタブを閉じる
+            tabEl.addEventListener('auxclick', (e) => {
+                if (e.button === 1) {
+                    closeTab(e, id);
+                }
+            });
+
+            // ダブルクリックで新規タブ
+            tabEl.addEventListener('dblclick', () => {
+                createNewTab();
+            });
+
+            tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
+                closeTab(e, id);
+            });
+
+            tabBarEl.insertBefore(tabEl, document.getElementById('new-tab-btn'));
+
             const iframe = document.createElement('iframe');
             iframe.id = id;
             iframe.src = url;
-            iframe.onload = () => {
-                hideLoader();
-                updateTabMetadata(id);
-            };
-            document.getElementById('viewport').appendChild(iframe);
 
-            switchTab(id);
+            iframe.addEventListener('load', () => {
+                stopLoader();
+                markTabLoading(id, false);
+                updateTabMetadata(id);
+                syncAddressBarWithActive();
+            });
+
+            // ページ遷移開始を検知（完全ではないがUX向上用）
+            iframe.addEventListener('loadstart', () => {
+                startLoader();
+                markTabLoading(id, true);
+            });
+
+            viewportEl.appendChild(iframe);
+
+            switchTab(id, { skipAddressSync: true });
+            startLoader();
+            markTabLoading(id, true);
         }
 
-        function switchTab(id) {
+        function switchTab(id, options = {}) {
             activeTabId = id;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
 
-            document.getElementById('trigger-' + id).classList.add('active');
+            const tabTrigger = document.getElementById('trigger-' + id);
             const activeIframe = document.getElementById(id);
+            if (!tabTrigger || !activeIframe) return;
+
+            tabTrigger.classList.add('active');
             activeIframe.classList.add('active');
 
-            // Update Address Bar
+            if (!options.skipAddressSync) {
+                syncAddressBarWithActive();
+            }
+        }
+
+        function syncAddressBarWithActive() {
+            const activeIframe = document.getElementById(activeTabId);
+            if (!activeIframe) return;
             try {
                 const currentUrl = activeIframe.contentWindow.location.href;
-                if(currentUrl.includes('search.html')) {
-                    document.getElementById('main-address-bar').value = '';
+                if (currentUrl.includes('search.html')) {
+                    addressBarEl.value = '';
                 } else {
-                    // プロキシURLをデコードして表示するロジックをここに追加可能
-                    document.getElementById('main-address-bar').value = currentUrl;
+                    addressBarEl.value = currentUrl;
                 }
-            } catch(e) { 
-                document.getElementById('main-address-bar').value = "Protected Session";
+            } catch (e) {
+                addressBarEl.value = "Protected Session";
             }
         }
 
         function closeTab(e, id) {
-            e.stopPropagation();
+            if (e) e.stopPropagation();
             if (tabs.length === 1) return;
-            
+
             const index = tabs.findIndex(t => t.id === id);
+            if (index === -1) return;
+
             tabs.splice(index, 1);
-            
-            document.getElementById('trigger-' + id).remove();
-            document.getElementById(id).remove();
+
+            const tabEl = document.getElementById('trigger-' + id);
+            const iframeEl = document.getElementById(id);
+            if (tabEl) tabEl.remove();
+            if (iframeEl) iframeEl.remove();
 
             if (activeTabId === id) {
-                switchTab(tabs[tabs.length - 1].id);
+                const newActive = tabs[tabs.length - 1];
+                if (newActive) {
+                    switchTab(newActive.id);
+                } else {
+                    activeTabId = null;
+                    addressBarEl.value = '';
+                }
             }
         }
 
         function updateTabMetadata(id) {
             const iframe = document.getElementById(id);
             const tab = document.getElementById('trigger-' + id);
+            if (!iframe || !tab) return;
             try {
                 const title = iframe.contentDocument.title || "New Tab";
                 tab.querySelector('.tab-title').textContent = title;
-            } catch(e) {
+            } catch (e) {
                 tab.querySelector('.tab-title').textContent = "Secure Page";
             }
         }
 
-        function showLoader() { document.getElementById('global-loader').classList.add('visible'); }
-        function hideLoader() { document.getElementById('global-loader').classList.remove('visible'); }
-
         function activeIframeAction(action) {
             const frame = document.getElementById(activeTabId);
-            if(!frame) return;
-            if(action === 'back') frame.contentWindow.history.back();
-            if(action === 'forward') frame.contentWindow.history.forward();
-            if(action === 'reload') frame.contentWindow.location.reload();
+            if (!frame) return;
+            try {
+                if (action === 'back') frame.contentWindow.history.back();
+                if (action === 'forward') frame.contentWindow.history.forward();
+                if (action === 'reload') frame.contentWindow.location.reload();
+                startLoader();
+                markTabLoading(activeTabId, true);
+            } catch (e) {
+                // 何もしない（クロスオリジンなど）
+            }
         }
 
-        // Address Bar Logic
-        document.getElementById('main-address-bar').addEventListener('keydown', (e) => {
-            if(e.key === 'Enter') {
-                const val = e.target.value;
+        // アドレスバー
+        addressBarEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
                 const frame = document.getElementById(activeTabId);
-                showLoader();
-                
-                // search.htmlに対して検索命令を送る、または直接プロキシ
-                if(frame.contentWindow.processSearch) {
-                    frame.contentWindow.processSearch(val);
-                } else {
-                    // 直接プロキシスクリプトを呼び出す(uv logic)
-                    const url = __uv$config.prefix + __uv$config.encodeUrl(val.includes('.') ? (val.startsWith('http') ? val : 'https://' + val) : 'https://www.google.com/search?q=' + encodeURIComponent(val));
-                    frame.src = url;
+                if (!frame) return;
+
+                startLoader();
+                markTabLoading(activeTabId, true);
+
+                if (!val) {
+                    frame.src = 'search.html';
+                    return;
+                }
+
+                try {
+                    if (frame.contentWindow.processSearch) {
+                        frame.contentWindow.processSearch(val);
+                    } else {
+                        const isLikelyUrl = val.includes('.') || val.startsWith('http');
+                        const targetUrl = isLikelyUrl
+                            ? (val.startsWith('http') ? val : 'https://' + val)
+                            : 'https://www.google.com/search?q=' + encodeURIComponent(val);
+
+                        const proxied = __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
+                        frame.src = proxied;
+                    }
+                } catch (err) {
+                    const fallbackUrl = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+                    const proxied = __uv$config.prefix + __uv$config.encodeUrl(fallbackUrl);
+                    frame.src = proxied;
                 }
             }
         });
 
+        // ナビゲーションボタン
+        document.getElementById('btn-back').addEventListener('click', () => activeIframeAction('back'));
+        document.getElementById('btn-forward').addEventListener('click', () => activeIframeAction('forward'));
+        document.getElementById('btn-reload').addEventListener('click', () => activeIframeAction('reload'));
+
+        // 新規タブボタン
+        document.getElementById('new-tab-btn').addEventListener('click', () => createNewTab());
+
+        // Ctrl+T / Ctrl+W / Ctrl+L ショートカット
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key.toLowerCase() === 't') {
+                e.preventDefault();
+                createNewTab();
+            }
+            if (e.ctrlKey && e.key.toLowerCase() === 'w') {
+                e.preventDefault();
+                if (activeTabId) {
+                    closeTab(e, activeTabId);
+                }
+            }
+            if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                addressBarEl.focus();
+                addressBarEl.select();
+            }
+        });
+
         // 初期タブ
-        window.onload = () => createNewTab();
+        window.onload = () => {
+            createNewTab();
+        };
     </script>
 </body>
 </html>
