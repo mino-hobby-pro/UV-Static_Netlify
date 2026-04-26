@@ -1,79 +1,40 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Abyss - Gateway</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background: #050505;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
+<html>
+   <head>
+      <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
+      <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
+<script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<link rel="stylesheet" href="./particles.css">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-        .logo {
-            font-size: 72px;
-            font-weight: 800;
-            letter-spacing: -4px;
-            margin-bottom: 40px;
-            background: linear-gradient(135deg, #fff 0%, #444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
-        }
-
-        .search-container {
-            width: 100%;
-            max-width: 580px;
-            position: relative;
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 14px 28px;
-            border-radius: 30px;
-            background: #202124;
-            border: 1px solid #3c4043;
-            color: white;
-            font-size: 16px;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .search-bar:hover {
-            background: #303134;
-            border-color: transparent;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.3);
-        }
-
-        .search-bar:focus {
-            background: #303134;
-            box-shadow: 0 1px 8px 1px rgba(0,0,0,0.3);
-        }
-
-        .hint {
-            margin-top: 24px;
-            color: #9aa0a6;
-            font-size: 13px;
-        }
-    </style>
-</head>
-<body>
-    <div class="logo">ABYSS</div>
-    <div class="search-container">
-        <form id="search-form">
-            <input type="text" class="search-bar" id="search-input" placeholder="検索またはURLを入力" autofocus autocomplete="off">
-        </form>
-    </div>
-    <div class="hint">Secure Proxy Architecture v5.2</div>
-
+  gtag('config', 'G-VHVNHMYGN3');
+</script>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+      <link rel="stylesheet" href="index.css">
+      <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
+      <link rel="shortcut icon" type="image/jpg" href="~/favicon.ico"/>
+      <link href="https://fonts.googleapis.com/css?family=Share Tech Mono" rel="stylesheet"/>
+   </head>
+   <body>
+      <div id="particles-js"></div>
+      <div id="imgsearch">
+         
+         <title>ΞV∆SI</title>
+         <img src="logo.gif" alt="Logo" style="width:640px;height:330px;">
+         <form id="uv-form"">
+            <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden"/> 
+            <input id="uv-address" type="text" placeholder="Search Google or type an URL" class="form__input"/>
+          </form>
+          <div class="desc left-margin">
+            <p id="uv-error"></p>
+            <pre id="uv-error-code"></pre>
+          </div>
+        </div>
       <script src="uv/uv.bundle.js" defer></script>
       <script src="uv/uv.config.js" defer></script>
       <script src="register-sw.js" defer></script>
@@ -82,28 +43,8 @@
       <script src="index.js" defer></script>
       <script src="particles.min.js"></script>
       <script src="particles.js"></script>
-    <script>
-        const form = document.getElementById('search-form');
-        const input = document.getElementById('search-input');
-
-        // 親(index.html)から呼び出される検索処理
-        window.processSearch = function(q) {
-            const url = __uv$config.prefix + __uv$config.encodeUrl(
-                q.includes('.') ? (q.startsWith('http') ? q : 'https://' + q) : 'https://www.google.com/search?q=' + encodeURIComponent(q)
-            );
-            location.href = url;
-        };
-
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            const q = input.value;
-            if(!q) return;
-            
-            // 親にローディング表示を依頼（iframe内から親の関数を呼ぶ）
-            if(window.parent.showLoader) window.parent.showLoader();
-            
-            processSearch(q);
-        };
-    </script>
-</body>
+      <div id="footer">
+         <p>&copy; 2023 Evasi. All rights reserved.</p>
+      </div>
+   </body>
 </html>
