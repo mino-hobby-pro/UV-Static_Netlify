@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Shell - Incognito</title>
+    <title>AbyssV5 - browser</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Incognito Theme Colors */
             --bg-app: #202124;
             --bg-toolbar: #35363a;
             --bg-tab-active: #35363a;
@@ -64,7 +63,6 @@
             flex: 1;
         }
 
-        /* Tab Separator */
         .tab:not(.active):not(:hover)::after {
             content: ''; position: absolute; right: -1px; top: 25%; height: 50%; width: 1px;
             background: var(--border);
@@ -121,7 +119,6 @@
         .new-tab-btn:hover { background: var(--bg-tab-hover); color: var(--text-primary); }
         .new-tab-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
-        /* ========== TOOLBAR ========== */
         .toolbar { 
             background: var(--bg-toolbar); 
             padding: 6px 12px; 
@@ -195,7 +192,6 @@
         }
         iframe.active { opacity: 1; pointer-events: auto; }
 
-        /* ========== MENUS & TOOLTIPS ========== */
         .context-menu {
             position: fixed; background: #28292c; border: 1px solid var(--border);
             border-radius: 8px; padding: 8px 0; z-index: 10000;
@@ -264,16 +260,13 @@
     <script src="uv/uv.bundle.js"></script>
     <script src="uv/uv.config.js"></script>
     <script>
-        // ==================== STATE ====================
         let tabs = [];
         let activeTabId = null;
         let contextTabId = null;
         let dragSrcEl = null;
 
-        // Default Icon SVG
         const defaultIcon = `<svg viewBox="0 0 24 24" style="fill:currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
 
-        // ==================== PROGRESS BAR ====================
         function showProgress() {
             const bar = document.getElementById('progress-bar');
             bar.classList.add('loading');
@@ -297,10 +290,8 @@
             }, 300);
         }
 
-        // ==================== TAB SYSTEM ====================
         function createNewTab(url = 'search.html') {
             const id = 'tab-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
-            // proxyReloaded: 初回のみリロードするためのフラグ
             const tabObj = { id, url, loading: true, proxyReloaded: false };
             tabs.push(tabObj);
 
@@ -324,7 +315,6 @@
             tabEl.addEventListener('mouseenter', (e) => showTooltip(e, id));
             tabEl.addEventListener('mouseleave', hideTooltip);
 
-            // Drag Events
             tabEl.addEventListener('dragstart', handleDragStart);
             tabEl.addEventListener('dragover', handleDragOver);
             tabEl.addEventListener('drop', handleDrop);
@@ -344,18 +334,15 @@
                 updateTabMetadata(id);
                 updateNavButtons();
 
-                // ▼▼▼ 初回プロキシ読み込み時の自動リロード処理 ▼▼▼
                 try {
                     const currentUrl = iframe.contentWindow.location.href;
-                    // UVプロキシのURLであり、かつこのタブでまだ一度もリロードを実行していない場合
                     if (currentUrl.includes(__uv$config.prefix) && !tabObj.proxyReloaded) {
-                        tabObj.proxyReloaded = true; // フラグを立てて二度と実行されないようにする
+                        tabObj.proxyReloaded = true; 
                         setTimeout(() => {
                             iframe.contentWindow.location.reload();
-                        }, 50); // 一瞬だけ待機して安全にリロード
+                        }, 10); 
                     }
                 } catch(e) {
-                    // クロスオリジン等で取得できない場合は無視
                 }
             };
             
@@ -434,7 +421,6 @@
                 if (currentUrl.includes('search.html')) {
                     bar.value = '';
                 } else {
-                    // UVデコードが必要な場合はここで処理可能。簡易的にそのまま表示
                     bar.value = currentUrl;
                 }
             } catch(e) { 
@@ -448,7 +434,6 @@
             document.getElementById('btn-back').disabled = !canGoBack;
         }
 
-        // ==================== DRAG & DROP ====================
         function handleDragStart(e) {
             dragSrcEl = this;
             this.classList.add('dragging');
@@ -493,7 +478,6 @@
             dragSrcEl = null;
         }
 
-        // ==================== CONTEXT MENU ====================
         function showContextMenu(e, id) {
             e.preventDefault();
             contextTabId = id;
@@ -552,7 +536,6 @@
 
         function hideTooltip() { document.getElementById('tab-tooltip').classList.remove('visible'); }
 
-        // ==================== NAV ACTIONS ====================
         function activeIframeAction(action) {
             const frame = document.getElementById(activeTabId);
             if (!frame) return;
@@ -563,7 +546,6 @@
             } catch(e) {}
         }
 
-        // ==================== ADDRESS BAR ====================
         document.getElementById('main-address-bar').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = e.target.value.trim();
@@ -581,7 +563,7 @@
                 } else {
                     let searchUrl = val;
                     if (!val.includes('.') || val.includes(' ')) {
-                        searchUrl = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+                        searchUrl = 'https://www.startpage.com/search?q=' + encodeURIComponent(val);
                     } else if (!val.startsWith('http')) {
                         searchUrl = 'https://' + val;
                     }
@@ -590,7 +572,6 @@
             }
         });
 
-        // ==================== SHORTCUTS ====================
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 if (e.key === 't') { e.preventDefault(); createNewTab(); }
@@ -598,7 +579,6 @@
             }
         });
 
-        // ==================== INIT ====================
         window.onload = () => {
             createNewTab();
         };
