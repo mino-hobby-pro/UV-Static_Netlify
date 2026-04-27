@@ -237,7 +237,7 @@
     <span class="version-badge">Smart Proxy ENGINE — V5</span>
 
     <form id="uv-form">
-      <input id="uv-search-engine" value="https://www.startpage.com/search?q=a" type="hidden"/>
+      <input id="uv-search-engine" value="https://www.startpage.com/search?q=" type="hidden"/>
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -293,7 +293,6 @@
       });
     });
 
-    /* ── particles.js init (only if library is available) ─── */
     window.addEventListener('load', function () {
       if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
@@ -365,7 +364,6 @@
       return null;
     };
 
-    /* 2. MutationObserver: 動的に挿入される要素も即座に削除 */
     function killNode(node) {
       if (!node || node.nodeType !== 1) return false;
       var html = node.outerHTML || '';
@@ -407,7 +405,6 @@
       startObs();
     }
 
-    /* 3. Notification API 封鎖 */
     if (typeof Notification !== 'undefined') {
       var _Notification = window.Notification;
       window.Notification = function(title, options) {
