@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
   <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <link rel="stylesheet" href="./particles.css">
@@ -17,394 +16,235 @@
   <link rel="stylesheet" href="index.css">
   <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
 
-  <title>AbyssV5</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <title>Abyss Incognito</title>
+  
+  <script>
+    (function() {
+      const banText = "Welcome to Evasi the internet Bypasser, search something up on google or stick around for future updates!";
+      
+      const originalAlert = window.alert;
+      window.alert = function(message) {
+        if (typeof message === 'string' && message.includes("Welcome to Evasi")) return;
+        originalAlert(message);
+      };
+      
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) { // 要素ノードの場合
+              if (node.textContent.includes("Welcome to Evasi")) {
+                node.style.display = 'none'; // 即座に非表示
+                node.remove(); // DOMから完全に消去
+              }
+            }
+          });
+        });
+      });
+
+      // ページ全体の監視を開始
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+
+      // 3. 念のため読み込み完了時にも全体スキャンして削除
+      window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('*').forEach(el => {
+          if (el.textContent.includes("Welcome to Evasi")) {
+            el.style.display = 'none';
+            el.remove();
+          }
+        });
+      });
+    })();
+  </script>
 
   <style>
-    /* ─── RESET & ROOT ─────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* リセットと基本設定 */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
-      --bg:        #01020a;
-      --surface:   #060912;
-      --glass:     rgba(4, 8, 24, 0.72);
-      --border:    rgba(0, 200, 255, 0.12);
-      --accent:    #00c8ff;
-      --accent2:   #0057ff;
-      --accent3:   #7000ff;
-      --dim:       rgba(0, 200, 255, 0.45);
-      --text:      #d8eeff;
-      --muted:     rgba(180, 210, 255, 0.35);
-      --glow:      0 0 24px rgba(0,200,255,0.25), 0 0 80px rgba(0,87,255,0.12);
-      --glow-hi:   0 0 8px rgba(0,200,255,0.9), 0 0 32px rgba(0,200,255,0.4), 0 0 80px rgba(0,87,255,0.3);
+      /* シークレットモードの配色 */
+      --bg-color: #202124;
+      --surface-color: #303134;
+      --border-color: #5f6368;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --accent-color: #8ab4f8;
+      --focus-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
     }
 
     html, body {
-      width: 100%; height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Space Mono', monospace;
-      overflow-x: hidden;
-      cursor: none;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      /* 元の使いにくい独自カーソルを強制解除し、デフォルトに戻す */
+      cursor: auto !important; 
     }
 
-    /* ─── CUSTOM CURSOR ────────────────────────────────────────────── */
-    #cursor {
-      position: fixed; z-index: 9999; pointer-events: none;
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: var(--glow-hi);
-      transform: translate(-50%, -50%);
-      transition: transform 0.08s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s;
-      mix-blend-mode: screen;
-    }
-    #cursor-ring {
-      position: fixed; z-index: 9998; pointer-events: none;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      border: 1px solid var(--dim);
-      transform: translate(-50%, -50%);
-      transition: transform 0.18s ease, width 0.25s ease, height 0.25s ease, border-color 0.2s;
-      mix-blend-mode: screen;
-    }
-    body:hover #cursor { opacity: 1; }
-
-    /* ─── NOISE OVERLAY ────────────────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-      background-size: 180px;
-      opacity: 0.55;
+    /* 過去の鬱陶しい装飾要素を全て不可視化（JSエラーを防ぐためDOMには残しつつ隠す） */
+    #cursor, #cursor-ring, #particles-js, .orb, .grid-bg {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
 
-    /* Scanlines */
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 2; pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.07) 2px,
-        rgba(0, 0, 0, 0.07) 4px
-      );
-    }
-
-    /* ─── PARTICLES CANVAS ─────────────────────────────────────────── */
-    #particles-js {
-      position: fixed; inset: 0; z-index: 0;
-    }
-
-    /* ─── DEEP BACKGROUND ORBS ─────────────────────────────────────── */
-    .orb {
-      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
-      filter: blur(90px);
-      animation: orb-drift 18s ease-in-out infinite alternate;
-    }
-    .orb-1 {
-      width: 600px; height: 600px;
-      top: -180px; left: -120px;
-      background: radial-gradient(circle, rgba(0,87,255,0.18) 0%, transparent 70%);
-      animation-duration: 22s;
-    }
-    .orb-2 {
-      width: 500px; height: 500px;
-      bottom: -100px; right: -80px;
-      background: radial-gradient(circle, rgba(112,0,255,0.15) 0%, transparent 70%);
-      animation-duration: 17s;
-      animation-delay: -5s;
-    }
-    .orb-3 {
-      width: 350px; height: 350px;
-      top: 40%; left: 55%;
-      background: radial-gradient(circle, rgba(0,200,255,0.10) 0%, transparent 70%);
-      animation-duration: 25s;
-      animation-delay: -9s;
-    }
-    @keyframes orb-drift {
-      0%   { transform: translate(0, 0) scale(1); }
-      50%  { transform: translate(40px, 30px) scale(1.08); }
-      100% { transform: translate(-20px, 50px) scale(0.95); }
-    }
-
-    /* ─── MAIN LAYOUT ──────────────────────────────────────────────── */
+    /* メインレイアウト */
     #imgsearch {
-      position: relative; z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 2rem;
-      gap: 0;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
     }
 
-    /* ─── WORDMARK ─────────────────────────────────────────────────── */
+    /* シークレット風アイコンとタイトル */
+    .incognito-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .incognito-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      fill: var(--text-primary);
+      opacity: 0.8;
+    }
+
     #imgsearch h1 {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(3.5rem, 10vw, 8rem);
-      letter-spacing: -0.02em;
-      line-height: 1;
-      margin-bottom: 0.15em;
-      color: transparent;
-      background: linear-gradient(135deg, #ffffff 0%, var(--accent) 55%, var(--accent2) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      position: relative;
-      animation: title-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-      filter: drop-shadow(0 0 30px rgba(0,200,255,0.3));
+      font-size: 2.5rem;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin: 0;
     }
 
-    /* Glitch layers */
-    #imgsearch h1::before,
-    #imgsearch h1::after {
-      content: 'Abyss V5';
-      position: absolute; inset: 0;
-      background: inherit;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    #imgsearch h1::before {
-      animation: glitch-1 4.5s infinite;
-      clip-path: polygon(0 15%, 100% 15%, 100% 40%, 0 40%);
-      transform: translate(-3px, 0);
-      opacity: 0.7;
-      filter: hue-rotate(180deg);
-    }
-    #imgsearch h1::after {
-      animation: glitch-2 4.5s infinite;
-      clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-      transform: translate(3px, 0);
-      opacity: 0.5;
-      filter: hue-rotate(-90deg);
-    }
-
-    @keyframes glitch-1 {
-      0%,90%,100% { transform: translate(0,0); opacity:0; }
-      92%          { transform: translate(-4px, 1px); opacity:0.7; }
-      94%          { transform: translate(3px, -1px); opacity:0.5; }
-      96%          { transform: translate(-2px, 2px); opacity:0.7; }
-    }
-    @keyframes glitch-2 {
-      0%,90%,100% { transform: translate(0,0); opacity:0; }
-      92%          { transform: translate(4px, -2px); opacity:0.5; }
-      94%          { transform: translate(-3px, 1px); opacity:0.6; }
-      96%          { transform: translate(2px, -1px); opacity:0.4; }
-    }
-
-    /* Version badge */
-    .version-badge {
-      display: inline-block;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--accent);
-      border: 1px solid var(--border);
-      background: rgba(0,200,255,0.06);
-      padding: 0.35em 0.9em;
-      border-radius: 2px;
-      margin-bottom: 3.5rem;
-      animation: badge-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
-      position: relative;
-      overflow: hidden;
-    }
-    .version-badge::before {
-      content: '';
-      position: absolute;
-      left: -60%; top: 0; width: 40%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0,200,255,0.18), transparent);
-      animation: badge-shine 3s ease-in-out infinite 2s;
-    }
-    @keyframes badge-shine {
-      0%   { left: -60%; }
-      100% { left: 160%; }
-    }
-
-    /* ─── SEARCH FORM ──────────────────────────────────────────────── */
+    /* 検索フォームのスタイリング */
     #uv-form {
+      width: 100%;
+      max-width: 584px;
       position: relative;
-      width: min(680px, 90vw);
-      animation: form-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
     }
 
-    /* Animated border container */
-    #uv-form::before {
-      content: '';
+    /* 検索アイコン */
+    .search-icon-input {
       position: absolute;
-      inset: -1px;
-      border-radius: 6px;
-      background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3), var(--accent2));
-      background-size: 300% 100%;
-      animation: border-flow 4s linear infinite;
-      z-index: -1;
-      opacity: 0.6;
-    }
-    @keyframes border-flow {
-      0%   { background-position: 0% 50%; }
-      100% { background-position: 300% 50%; }
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+      pointer-events: none;
     }
 
+    /* 検索入力欄 */
     #uv-address {
       width: 100%;
-      background: var(--glass);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      padding: 1.2rem 1.5rem 1.2rem 3.6rem;
-      color: var(--text);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.95rem;
-      letter-spacing: 0.02em;
+      height: 48px;
+      background-color: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 0 20px 0 48px;
+      color: var(--text-primary);
+      font-size: 16px;
       outline: none;
-      caret-color: var(--accent);
-      transition: background 0.3s, box-shadow 0.3s;
+      transition: all 0.2s ease;
     }
+
     #uv-address::placeholder {
-      color: var(--muted);
-      font-style: italic;
+      color: var(--text-secondary);
     }
+
+    #uv-address:hover {
+      background-color: #35363a;
+      border-color: #5f6368;
+    }
+
     #uv-address:focus {
-      background: rgba(4, 12, 36, 0.88);
-      box-shadow: var(--glow-hi), inset 0 0 30px rgba(0,200,255,0.04);
+      background-color: var(--surface-color);
+      border-color: var(--surface-color);
+      box-shadow: var(--focus-shadow);
     }
 
-    /* Search icon */
-    #uv-form .search-icon {
-      position: absolute;
-      left: 1.1rem; top: 50%;
-      transform: translateY(-50%);
-      width: 18px; height: 18px;
-      opacity: 0.5;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    #uv-address:focus ~ .search-icon,
-    #uv-form:focus-within .search-icon { opacity: 0.9; }
-
-    /* ─── ERROR AREA ───────────────────────────────────────────────── */
+    /* エラー表示エリア */
     .desc {
-      margin-top: 1.2rem;
-      width: min(680px, 90vw);
-      animation: form-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+      width: 100%;
+      max-width: 584px;
+      margin-top: 16px;
+      text-align: center;
     }
-    .left-margin { padding-left: 0.2rem; }
+
     #uv-error {
-      color: rgba(255, 100, 100, 0.8);
-      font-size: 0.78rem;
-      letter-spacing: 0.04em;
-      min-height: 1.2em;
+      color: #f28b82; /* エラー用の落ち着いた赤 */
+      font-size: 14px;
+      margin-bottom: 4px;
     }
+
     #uv-error-code {
-      color: var(--muted);
-      font-size: 0.72rem;
-      font-family: 'Space Mono', monospace;
-      margin-top: 0.3rem;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-family: monospace;
       white-space: pre-wrap;
     }
 
-    /* ─── FOOTER ───────────────────────────────────────────────────── */
+    /* フッター */
     #footer {
-      position: fixed;
-      bottom: 1.6rem; left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      font-size: 0.68rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: rgba(0,200,255,0.15);
-      white-space: nowrap;
-      animation: footer-in 2s ease 1.2s both;
-    }
-    #footer p { display: none; } /* copyright removed */
-
-    @keyframes footer-in {
-      from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-
-    /* ─── ENTRY ANIMATIONS ─────────────────────────────────────────── */
-    @keyframes title-in {
-      from { opacity: 0; transform: translateY(40px) skewY(2deg); filter: blur(12px) drop-shadow(0 0 0 transparent); }
-      to   { opacity: 1; transform: translateY(0) skewY(0deg); filter: drop-shadow(0 0 30px rgba(0,200,255,0.3)); }
-    }
-    @keyframes badge-in {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes form-in {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── GRID LINES (subtle depth) ────────────────────────────────── */
-    .grid-bg {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
-      background-size: 80px 80px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
-    }
-
-    /* ─── RESPONSIVE ────────────────────────────────────────────────── */
-    @media (max-width: 480px) {
-      #imgsearch h1 { font-size: 3rem; }
-      #uv-address { padding: 1rem 1rem 1rem 3rem; font-size: 0.85rem; }
+      position: absolute;
+      bottom: 20px;
+      color: var(--text-secondary);
+      font-size: 12px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Custom cursor -->
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
-
-  <!-- Depth orbs -->
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
-
-  <!-- Grid background -->
   <div class="grid-bg"></div>
-
-  <!-- Particles canvas -->
   <div id="particles-js"></div>
 
-  <!-- Main content -->
   <div id="imgsearch">
-    <h1>Abyss V5</h1>
-    <span class="version-badge">DEEP SEARCH ENGINE — V5</span>
+    
+    <div class="incognito-header">
+      <svg class="incognito-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+      </svg>
+      <h1>Abyss</h1>
+    </div>
 
     <form id="uv-form">
       <input id="uv-search-engine" value="https://www.startpage.com/search?q=a" type="hidden"/>
-      <!-- Search icon SVG -->
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      
+      <svg class="search-icon-input" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
       </svg>
-      <input id="uv-address" type="text" placeholder="Deep Search or type an URL" class="form__input" autocomplete="off" spellcheck="false"/>
+      
+      <input id="uv-address" type="text" placeholder="Search the web securely..." autocomplete="off" spellcheck="false"/>
     </form>
 
-    <div class="desc left-margin">
+    <div class="desc">
       <p id="uv-error"></p>
       <pre id="uv-error-code"></pre>
     </div>
   </div>
 
-  <!-- Footer (copyright hidden per request, element preserved) -->
   <div id="footer">
-    <p>&copy; 2026 MINO&amp;EVASI. All rights reserved.</p>
+    <p>&copy; 2026 MINO&amp;EVASI.</p>
   </div>
 
-  <!-- All original scripts preserved -->
   <script src="uv/uv.bundle.js" defer></script>
   <script src="uv/uv.config.js" defer></script>
   <script src="register-sw.js" defer></script>
@@ -415,7 +255,6 @@
   <script src="particles.js"></script>
 
   <script>
-    /* ── Custom cursor ─────────────────────────────────────── */
     const cur  = document.getElementById('cursor');
     const ring = document.getElementById('cursor-ring');
     let mx = 0, my = 0, rx = 0, ry = 0;
@@ -444,7 +283,6 @@
       });
     });
 
-    /* ── particles.js init (only if library is available) ─── */
     window.addEventListener('load', function () {
       if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
@@ -454,26 +292,13 @@
             shape:  { type: 'circle' },
             opacity: { value: 0.35, random: true, anim: { enable: true, speed: 0.5, opacity_min: 0.05, sync: false } },
             size:    { value: 1.8, random: true, anim: { enable: true, speed: 1.2, size_min: 0.3, sync: false } },
-            line_linked: {
-              enable: true, distance: 130, color: '#0057ff',
-              opacity: 0.1, width: 0.8
-            },
-            move: {
-              enable: true, speed: 0.6, direction: 'none',
-              random: true, straight: false, out_mode: 'out', bounce: false
-            }
+            line_linked: { enable: true, distance: 130, color: '#0057ff', opacity: 0.1, width: 0.8 },
+            move: { enable: true, speed: 0.6, direction: 'none', random: true, straight: false, out_mode: 'out', bounce: false }
           },
           interactivity: {
             detect_on: 'canvas',
-            events: {
-              onhover: { enable: true, mode: 'grab' },
-              onclick: { enable: true, mode: 'push' },
-              resize:  true
-            },
-            modes: {
-              grab: { distance: 180, line_linked: { opacity: 0.35 } },
-              push: { particles_nb: 3 }
-            }
+            events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
+            modes: { grab: { distance: 180, line_linked: { opacity: 0.35 } }, push: { particles_nb: 3 } }
           },
           retina_detect: true
         });
