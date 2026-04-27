@@ -50,14 +50,12 @@
       cursor: auto !important;
     }
 
-    /* ─── Kill noise, scanlines, custom cursor, orbs ─── */
     body::before, body::after { content: none !important; }
     #cursor, #cursor-ring { display: none !important; }
     .orb { display: none !important; }
     #particles-js { opacity: 0.06 !important; pointer-events: none !important; }
     .grid-bg { opacity: 0.08 !important; }
 
-    /* ─── Main Layout ─── */
     #imgsearch {
       position: relative; z-index: 10;
       display: flex;
@@ -114,7 +112,6 @@
     }
     .version-badge::before { content: none !important; }
 
-    /* ─── Search Form ─── */
     #uv-form {
       position: relative;
       width: min(620px, 92vw);
@@ -167,7 +164,6 @@
       color: var(--accent);
     }
 
-    /* ─── Error Area ─── */
     .desc {
       margin-top: 1rem;
       width: min(620px, 92vw);
@@ -206,7 +202,6 @@
     }
     #footer p { display: none; }
 
-    /* ─── Animations ─── */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -216,7 +211,6 @@
       to   { opacity: 1; }
     }
 
-    /* ─── Responsive ─── */
     @media (max-width: 480px) {
       #imgsearch h1 { font-size: 2.2rem; }
       #uv-address { padding: 0.95rem 1.2rem 0.95rem 2.8rem; font-size: 0.95rem; }
@@ -227,29 +221,23 @@
 </head>
 <body>
 
-  <!-- Custom cursor (hidden by CSS, JS untouched) -->
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
 
-  <!-- Depth orbs (hidden by CSS) -->
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
 
-  <!-- Grid background -->
   <div class="grid-bg"></div>
 
-  <!-- Particles canvas -->
   <div id="particles-js"></div>
 
-  <!-- Main content -->
   <div id="imgsearch">
     <h1>Abyss V5</h1>
-    <span class="version-badge">DEEP SEARCH ENGINE — V5</span>
+    <span class="version-badge">Smart Proxy ENGINE — V5</span>
 
     <form id="uv-form">
       <input id="uv-search-engine" value="https://www.startpage.com/search?q=a" type="hidden"/>
-      <!-- Search icon SVG -->
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -265,10 +253,9 @@
 
   <!-- Footer (copyright hidden per request, element preserved) -->
   <div id="footer">
-    <p>&copy; 2026 MINO&amp;EVASI. All rights reserved.</p>
+    <p>&copy; 2026 mino&amp;EVASI. All rights reserved.</p>
   </div>
 
-  <!-- All original scripts preserved -->
   <script src="uv/uv.bundle.js" defer></script>
   <script src="uv/uv.config.js" defer></script>
   <script src="register-sw.js" defer></script>
