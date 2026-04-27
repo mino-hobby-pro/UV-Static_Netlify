@@ -14,7 +14,6 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-  <link rel="stylesheet" href="index.css">
   <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
 
   <title>AbyssV5</title>
@@ -276,8 +275,6 @@
   <script src="error.js" defer></script>
   <script src="search.js" defer></script>
   <script src="index.js" defer></script>
-  <script src="particles.min.js"></script>
-  <script src="particles.js"></script>
 
   <script>
     /* ── Custom cursor (JS untouched, CSS hides it) ───────────────── */
@@ -346,17 +343,11 @@
     });
   </script>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       ABSOLUTE POPUP BLOCKER
-       "Welcome to Evasi the internet Bypasser..." を含む
-       あらゆるポップアップ・通知・DOM挿入を根源から阻止
-       ═══════════════════════════════════════════════════════════════ -->
   <script>
   (function() {
     'use strict';
     var BLOCK_TEXT = 'Welcome to Evasi the internet Bypasser';
 
-    /* 1. alert / confirm / prompt を完全封鎖 */
     var _alert   = window.alert;
     var _confirm = window.confirm;
     var _prompt  = window.prompt;
@@ -446,7 +437,6 @@
       window.Notification.requestPermission = _Notification.requestPermission;
     }
 
-    /* 4. 既存DOMからも検索して削除（万が一サーバー側レンダリングで含まれていた場合） */
     function sweep() {
       var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, null, false);
       var n;
