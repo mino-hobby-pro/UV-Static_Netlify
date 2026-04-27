@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
   <script async src="https://arc.io/widget.min.js#L1SfLEWE"></script>
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-VHVNHMYGN3"></script>
   <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <link rel="stylesheet" href="./particles.css">
@@ -16,235 +17,500 @@
   <link rel="stylesheet" href="index.css">
   <script type="text/javascript" src="//counter.websiteout.net/js/7/10/5/0"></script>
 
-  <title>Abyss Incognito</title>
-  
-  <script>
-    (function() {
-      const banText = "Welcome to Evasi the internet Bypasser, search something up on google or stick around for future updates!";
-      
-      const originalAlert = window.alert;
-      window.alert = function(message) {
-        if (typeof message === 'string' && message.includes("Welcome to Evasi")) return;
-        originalAlert(message);
-      };
-      
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === 1) { // 要素ノードの場合
-              if (node.textContent.includes("Welcome to Evasi")) {
-                node.style.display = 'none'; // 即座に非表示
-                node.remove(); // DOMから完全に消去
-              }
-            }
-          });
-        });
-      });
-
-      // ページ全体の監視を開始
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-
-      // 3. 念のため読み込み完了時にも全体スキャンして削除
-      window.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('*').forEach(el => {
-          if (el.textContent.includes("Welcome to Evasi")) {
-            el.style.display = 'none';
-            el.remove();
-          }
-        });
-      });
-    })();
-  </script>
+  <title>AbyssV5</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* リセットと基本設定 */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    /* ─── POPUP BLOCKER — blocks "Welcome to Evasi" and any alert/confirm/prompt ─── */
+    /* Applied before DOM ready via CSS visibility trick + JS override below          */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* シークレットモードの配色 */
-      --bg-color: #202124;
-      --surface-color: #303134;
-      --border-color: #5f6368;
-      --text-primary: #e8eaed;
-      --text-secondary: #9aa0a6;
-      --accent-color: #8ab4f8;
-      --focus-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+      /* Incognito palette: pure dark, frosted white accents, zero color noise */
+      --bg:           #0d0d0f;
+      --surface:      #141416;
+      --glass:        rgba(255,255,255,0.04);
+      --glass-hi:     rgba(255,255,255,0.07);
+      --border:       rgba(255,255,255,0.08);
+      --border-hi:    rgba(255,255,255,0.18);
+      --accent:       #c8d6e5;      /* cool silver-white */
+      --accent2:      #8899aa;      /* muted slate */
+      --accent-glow:  rgba(200,214,229,0.15);
+      --text:         rgba(255,255,255,0.88);
+      --text-dim:     rgba(255,255,255,0.38);
+      --text-ghost:   rgba(255,255,255,0.14);
+      --incognito:    rgba(255,255,255,0.06);
+      --hat-fill:     rgba(255,255,255,0.82);
+      --radius:       14px;
+      --radius-sm:    8px;
     }
 
     html, body {
-      width: 100%;
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── CUSTOM CURSOR ─────────────────────────────────────────── */
+    #cursor {
+      position: fixed; z-index: 9999; pointer-events: none;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      transform: translate(-50%, -50%);
+      transition: width 0.18s ease, height 0.18s ease, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed; z-index: 9998; pointer-events: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.25);
+      transform: translate(-50%, -50%);
+      transition: transform 0.22s cubic-bezier(0.23,1,0.32,1),
+                  width 0.22s ease, height 0.22s ease,
+                  border-color 0.2s;
+      mix-blend-mode: difference;
+    }
+    #cursor.hover { width: 4px; height: 4px; }
+    #cursor-ring.hover { width: 48px; height: 48px; border-color: rgba(255,255,255,0.5); }
+
+    /* ─── FULL-PAGE VIGNETTE ─────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(
+        ellipse 75% 70% at 50% 42%,
+        transparent 0%,
+        rgba(0,0,0,0.55) 100%
+      );
+    }
+
+    /* Subtle grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 2; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.028'/%3E%3C/svg%3E");
+      background-size: 220px;
+      opacity: 0.7;
+    }
+
+    /* ─── PARTICLES CANVAS ───────────────────────────────────────── */
+    #particles-js {
+      position: fixed; inset: 0; z-index: 0;
+    }
+
+    /* ─── BACKGROUND: subtle radial spotlight ────────────────────── */
+    .bg-spotlight {
+      position: fixed; z-index: 0; pointer-events: none;
+      width: 900px; height: 900px;
+      left: 50%; top: 42%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,255,255,0.022) 0%, transparent 65%);
+      border-radius: 50%;
+      animation: pulse-glow 8s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+      50%       { opacity: 1;   transform: translate(-50%,-50%) scale(1.06); }
+    }
+
+    /* Diagonal blurred line accents (incognito feel) */
+    .bg-line {
+      position: fixed; z-index: 0; pointer-events: none;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.04), transparent);
       height: 100%;
-      background-color: var(--bg-color);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      /* 元の使いにくい独自カーソルを強制解除し、デフォルトに戻す */
-      cursor: auto !important; 
+      top: 0;
+    }
+    .bg-line:nth-child(1) { left: 22%; animation: line-fade 12s ease-in-out infinite; }
+    .bg-line:nth-child(2) { left: 78%; animation: line-fade 12s ease-in-out infinite 4s; }
+    @keyframes line-fade {
+      0%,100% { opacity: 0.3; }
+      50%      { opacity: 0.8; }
     }
 
-    /* 過去の鬱陶しい装飾要素を全て不可視化（JSエラーを防ぐためDOMには残しつつ隠す） */
-    #cursor, #cursor-ring, #particles-js, .orb, .grid-bg {
-      display: none !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    /* メインレイアウト */
+    /* ─── MAIN LAYOUT ─────────────────────────────────────────────── */
     #imgsearch {
+      position: relative; z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px;
-      position: relative;
-      z-index: 10;
+      padding: 2rem;
+      gap: 0;
     }
 
-    /* シークレット風アイコンとタイトル */
-    .incognito-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-
+    /* ─── INCOGNITO ICON ─────────────────────────────────────────── */
     .incognito-icon {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 20px;
-      fill: var(--text-primary);
-      opacity: 0.8;
+      width: 72px; height: 72px;
+      margin-bottom: 2.2rem;
+      animation: icon-in 1s cubic-bezier(0.16,1,0.3,1) both;
+      opacity: 0.75;
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.12));
+      transition: opacity 0.3s, filter 0.3s;
+    }
+    .incognito-icon:hover {
+      opacity: 1;
+      filter: drop-shadow(0 0 28px rgba(255,255,255,0.22));
+    }
+    @keyframes icon-in {
+      from { opacity: 0; transform: translateY(-16px) scale(0.88); }
+      to   { opacity: 0.75; transform: translateY(0) scale(1); }
     }
 
+    /* ─── WORDMARK ──────────────────────────────────────────────── */
     #imgsearch h1 {
-      font-size: 2.5rem;
-      font-weight: 400;
-      letter-spacing: 0.05em;
-      color: var(--text-primary);
-      margin: 0;
-    }
-
-    /* 検索フォームのスタイリング */
-    #uv-form {
-      width: 100%;
-      max-width: 584px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(2.6rem, 7vw, 5.5rem);
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      color: transparent;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.42) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
       position: relative;
+      animation: title-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+    /* Subtle glitch - barely perceptible, very incognito */
+    #imgsearch h1::before {
+      content: 'Abyss V5';
+      position: absolute; inset: 0;
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: glitch-subtle 9s infinite;
+      clip-path: polygon(0 30%, 100% 30%, 100% 55%, 0 55%);
+      filter: hue-rotate(200deg) brightness(1.3);
+      opacity: 0;
+    }
+    #imgsearch h1::after {
+      content: 'Abyss V5';
+      position: absolute; inset: 0;
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: glitch-subtle 9s infinite 0.12s;
+      clip-path: polygon(0 62%, 100% 62%, 100% 78%, 0 78%);
+      filter: hue-rotate(-180deg);
+      opacity: 0;
+    }
+    @keyframes glitch-subtle {
+      0%,88%,100% { transform: translate(0); opacity: 0; }
+      90% { transform: translate(-3px, 0); opacity: 0.45; }
+      92% { transform: translate(2px, 0);  opacity: 0.3; }
+      94% { transform: translate(0);       opacity: 0; }
     }
 
-    /* 検索アイコン */
-    .search-icon-input {
+    /* Status line */
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 3.6rem;
+      animation: badge-in 1.2s cubic-bezier(0.16,1,0.3,1) 0.25s both;
+    }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      animation: dot-pulse 3s ease-in-out infinite;
+    }
+    @keyframes dot-pulse {
+      0%,100% { opacity: 0.4; transform: scale(1); }
+      50%      { opacity: 0.9; transform: scale(1.3); }
+    }
+    .status-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    /* ─── SEARCH FORM ─────────────────────────────────────────────── */
+    #uv-form {
+      position: relative;
+      width: min(660px, 90vw);
+      animation: form-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+    }
+
+    /* Frosted glass card behind input */
+    #uv-form::after {
+      content: '';
       position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      color: var(--text-secondary);
+      inset: -20px -24px;
+      background: rgba(255,255,255,0.018);
+      border-radius: 20px;
+      backdrop-filter: blur(2px);
+      z-index: -1;
+      border: 1px solid rgba(255,255,255,0.04);
       pointer-events: none;
     }
 
-    /* 検索入力欄 */
+    /* Animated top border line */
+    #uv-form::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 15%; right: 15%; height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255,255,255,0.35) 30%,
+        rgba(255,255,255,0.55) 50%,
+        rgba(255,255,255,0.35) 70%,
+        transparent
+      );
+      border-radius: 1px;
+      animation: top-line-glow 4s ease-in-out infinite;
+      z-index: 1;
+    }
+    @keyframes top-line-glow {
+      0%,100% { opacity: 0.5; left: 20%; right: 20%; }
+      50%      { opacity: 1;   left: 10%; right: 10%; }
+    }
+
     #uv-address {
       width: 100%;
-      height: 48px;
-      background-color: var(--surface-color);
-      border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 0 20px 0 48px;
-      color: var(--text-primary);
-      font-size: 16px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(32px) saturate(140%);
+      -webkit-backdrop-filter: blur(32px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.6rem 1.25rem 3.8rem;
+      color: rgba(255,255,255,0.9);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.98rem;
+      font-weight: 400;
+      letter-spacing: 0.015em;
       outline: none;
-      transition: all 0.2s ease;
+      caret-color: rgba(255,255,255,0.7);
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
-
     #uv-address::placeholder {
-      color: var(--text-secondary);
+      color: rgba(255,255,255,0.22);
+      font-weight: 300;
+      font-style: italic;
     }
-
-    #uv-address:hover {
-      background-color: #35363a;
-      border-color: #5f6368;
-    }
-
     #uv-address:focus {
-      background-color: var(--surface-color);
-      border-color: var(--surface-color);
-      box-shadow: var(--focus-shadow);
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.22);
+      box-shadow:
+        0 0 0 4px rgba(255,255,255,0.04),
+        0 8px 40px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
-    /* エラー表示エリア */
+    /* Search icon */
+    #uv-form .search-icon {
+      position: absolute;
+      left: 1.2rem; top: 50%;
+      transform: translateY(-50%);
+      width: 17px; height: 17px;
+      opacity: 0.3;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    #uv-form:focus-within .search-icon { opacity: 0.7; }
+
+    /* ─── ERROR AREA ─────────────────────────────────────────────── */
     .desc {
-      width: 100%;
-      max-width: 584px;
-      margin-top: 16px;
-      text-align: center;
+      margin-top: 1.1rem;
+      width: min(660px, 90vw);
+      animation: form-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
     }
-
+    .left-margin { padding-left: 0.2rem; }
     #uv-error {
-      color: #f28b82; /* エラー用の落ち着いた赤 */
-      font-size: 14px;
-      margin-bottom: 4px;
+      color: rgba(255, 120, 120, 0.75);
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+      min-height: 1.2em;
+      font-family: 'DM Mono', monospace;
     }
-
     #uv-error-code {
-      color: var(--text-secondary);
-      font-size: 12px;
-      font-family: monospace;
+      color: var(--text-ghost);
+      font-size: 0.7rem;
+      font-family: 'DM Mono', monospace;
+      margin-top: 0.3rem;
       white-space: pre-wrap;
     }
 
-    /* フッター */
+    /* ─── HINT ROW (privacy, speed) ─────────────────────────────── */
+    .hint-row {
+      display: flex;
+      gap: 2.4rem;
+      margin-top: 3rem;
+      animation: badge-in 1.3s cubic-bezier(0.16,1,0.3,1) 0.7s both;
+      opacity: 0.42;
+      transition: opacity 0.3s;
+    }
+    .hint-row:hover { opacity: 0.7; }
+    .hint-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.68rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .hint-item svg { opacity: 0.7; flex-shrink: 0; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────── */
     #footer {
-      position: absolute;
-      bottom: 20px;
-      color: var(--text-secondary);
-      font-size: 12px;
+      position: fixed;
+      bottom: 1.6rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      font-size: 0.62rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.1);
+      white-space: nowrap;
+      animation: footer-in 2s ease 1.3s both;
+    }
+    #footer p { display: none; }
+
+    @keyframes footer-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* ─── ENTRY ANIMATIONS ───────────────────────────────────────── */
+    @keyframes title-in {
+      from { opacity: 0; transform: translateY(28px); filter: blur(8px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+    }
+    @keyframes badge-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes form-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes icon-in {
+      from { opacity: 0; transform: translateY(-16px) scale(0.88); }
+      to   { opacity: 0.75; transform: translateY(0) scale(1); }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width: 520px) {
+      #imgsearch h1 { letter-spacing: 0.18em; }
+      #uv-address   { padding: 1.05rem 1.2rem 1.05rem 3.2rem; font-size: 0.88rem; }
+      .hint-row     { gap: 1.4rem; }
+      .incognito-icon { width: 56px; height: 56px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Custom cursor -->
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="grid-bg"></div>
+
+  <!-- BG accents -->
+  <div class="bg-spotlight"></div>
+  <div class="bg-line"></div>
+  <div class="bg-line"></div>
+
+  <!-- Particles canvas -->
   <div id="particles-js"></div>
 
+  <!-- Main content -->
   <div id="imgsearch">
-    
-    <div class="incognito-header">
-      <svg class="incognito-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-      </svg>
-      <h1>Abyss</h1>
+
+    <!-- Incognito SVG icon -->
+    <svg class="incognito-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- Hat brim -->
+      <rect x="12" y="44" width="72" height="8" rx="4" fill="var(--hat-fill)" opacity="0.85"/>
+      <!-- Hat top -->
+      <rect x="26" y="18" width="44" height="28" rx="6" fill="var(--hat-fill)" opacity="0.85"/>
+      <!-- Hat band -->
+      <rect x="26" y="38" width="44" height="6" rx="2" fill="rgba(0,0,0,0.28)"/>
+      <!-- Face/glasses area -->
+      <ellipse cx="48" cy="66" rx="22" ry="18" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <!-- Mustache -->
+      <path d="M36 74 Q42 70 48 74 Q54 70 60 74" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <!-- Left lens -->
+      <ellipse cx="39" cy="65" rx="8" ry="7" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+      <!-- Right lens -->
+      <ellipse cx="57" cy="65" rx="8" ry="7" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+      <!-- Bridge -->
+      <line x1="47" y1="65" x2="49" y2="65" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Left arm -->
+      <line x1="31" y1="65" x2="22" y2="63" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Right arm -->
+      <line x1="65" y1="65" x2="74" y2="63" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+
+    <h1>Abyss V5</h1>
+
+    <div class="status-line">
+      <span class="status-dot"></span>
+      <span class="status-text">Private · Encrypted · Bypassed</span>
     </div>
 
     <form id="uv-form">
       <input id="uv-search-engine" value="https://www.startpage.com/search?q=a" type="hidden"/>
-      
-      <svg class="search-icon-input" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      <!-- Search icon SVG -->
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      
-      <input id="uv-address" type="text" placeholder="Search the web securely..." autocomplete="off" spellcheck="false"/>
+      <input id="uv-address" type="text" placeholder="Search privately or enter a URL…" class="form__input" autocomplete="off" spellcheck="false"/>
     </form>
 
-    <div class="desc">
+    <div class="desc left-margin">
       <p id="uv-error"></p>
       <pre id="uv-error-code"></pre>
     </div>
+
+    <!-- Hint row -->
+    <div class="hint-row">
+      <span class="hint-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        No logs
+      </span>
+      <span class="hint-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Encrypted
+      </span>
+      <span class="hint-item">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        Bypassed
+      </span>
+    </div>
+
   </div>
 
+  <!-- Footer (copyright hidden per original, element preserved) -->
   <div id="footer">
-    <p>&copy; 2026 MINO&amp;EVASI.</p>
+    <p>&copy; 2026 MINO&amp;EVASI. All rights reserved.</p>
   </div>
 
+  <!-- All original scripts preserved — order unchanged -->
   <script src="uv/uv.bundle.js" defer></script>
   <script src="uv/uv.config.js" defer></script>
   <script src="register-sw.js" defer></script>
@@ -255,50 +521,149 @@
   <script src="particles.js"></script>
 
   <script>
-    const cur  = document.getElementById('cursor');
-    const ring = document.getElementById('cursor-ring');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    /* ══════════════════════════════════════════════════════════════════
+       POPUP BLOCKER — 完全ブロック
+       "Welcome to Evasi the internet Bypasser…" を含む
+       あらゆる手段のポップアップ・アラート・確認ダイアログを永久封印
+    ══════════════════════════════════════════════════════════════════ */
+    (function blockAllPopups() {
+      var BLOCKED_STRING = 'Welcome to Evasi';
+
+      /* --- ネイティブダイアログを封印 --------------------------------- */
+      var _noop = function() { return ''; };
+      var _block = function(original) {
+        return function(msg) {
+          if (typeof msg === 'string' && msg.indexOf(BLOCKED_STRING) !== -1) return;
+          // 他のalert/confirmも封印したい場合はreturnのみ、許可したい場合は以下を有効化
+          // return original.call(window, msg);
+          return;
+        };
+      };
+      window.alert   = _block(window.alert);
+      window.confirm = function() { return false; };
+      window.prompt  = function() { return null; };
+
+      /* --- MutationObserver: DOM注入ポップアップをブロック ------------ */
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          mutation.addedNodes.forEach(function(node) {
+            if (node.nodeType === 1) {
+              var text = node.textContent || '';
+              if (text.indexOf(BLOCKED_STRING) !== -1) {
+                node.parentNode && node.parentNode.removeChild(node);
+                return;
+              }
+              // 子孫も確認
+              var found = node.querySelectorAll && node.querySelectorAll('*');
+              if (found) {
+                Array.prototype.forEach.call(found, function(child) {
+                  if ((child.textContent || '').indexOf(BLOCKED_STRING) !== -1) {
+                    child.parentNode && child.parentNode.removeChild(child);
+                  }
+                });
+              }
+            }
+          });
+        });
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+
+      /* --- beforeunload / unload でポップアップを阻止 ---------------- */
+      window.addEventListener('beforeunload', function(e) {
+        e.stopImmediatePropagation();
+      }, true);
+
+      /* --- postMessage経由ポップアップブロック ----------------------- */
+      window.addEventListener('message', function(e) {
+        if (e.data && typeof e.data === 'string' && e.data.indexOf(BLOCKED_STRING) !== -1) {
+          e.stopImmediatePropagation();
+        }
+      }, true);
+
+      /* --- setTimeout/setInterval内のdynamic alert を封印 ----------- */
+      var _origSetTimeout = window.setTimeout;
+      var _origSetInterval = window.setInterval;
+      window.setTimeout = function(fn, delay) {
+        var args = Array.prototype.slice.call(arguments);
+        if (typeof fn === 'string' && fn.indexOf(BLOCKED_STRING) !== -1) return;
+        return _origSetTimeout.apply(window, args);
+      };
+      window.setInterval = function(fn, delay) {
+        var args = Array.prototype.slice.call(arguments);
+        if (typeof fn === 'string' && fn.indexOf(BLOCKED_STRING) !== -1) return;
+        return _origSetInterval.apply(window, args);
+      };
+    })();
+
+    /* ══════════════════════════════════════════════════════════════════
+       CUSTOM CURSOR
+    ══════════════════════════════════════════════════════════════════ */
+    var cur  = document.getElementById('cursor');
+    var ring = document.getElementById('cursor-ring');
+    var mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
 
     (function animateCursor() {
-      rx += (mx - rx) * 0.14;
-      ry += (my - ry) * 0.14;
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
       cur.style.left  = mx + 'px';
       cur.style.top   = my + 'px';
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
+      ring.style.left = Math.round(rx) + 'px';
+      ring.style.top  = Math.round(ry) + 'px';
       requestAnimationFrame(animateCursor);
     })();
 
-    document.querySelectorAll('input, a, button').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cur.style.width = '6px'; cur.style.height = '6px';
-        ring.style.width = '52px'; ring.style.height = '52px';
-        ring.style.borderColor = 'var(--accent)';
+    document.querySelectorAll('input, a, button, .hint-item').forEach(function(el) {
+      el.addEventListener('mouseenter', function() {
+        cur.classList.add('hover');
+        ring.classList.add('hover');
       });
-      el.addEventListener('mouseleave', () => {
-        cur.style.width = '12px'; cur.style.height = '12px';
-        ring.style.width = '36px'; ring.style.height = '36px';
-        ring.style.borderColor = 'var(--dim)';
+      el.addEventListener('mouseleave', function() {
+        cur.classList.remove('hover');
+        ring.classList.remove('hover');
       });
     });
 
+    /* ══════════════════════════════════════════════════════════════════
+       PARTICLES.JS — monochrome incognito style
+    ══════════════════════════════════════════════════════════════════ */
     window.addEventListener('load', function () {
       if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
           particles: {
-            number: { value: 55, density: { enable: true, value_area: 900 } },
-            color:  { value: ['#00c8ff', '#0057ff', '#7000ff'] },
+            number: { value: 40, density: { enable: true, value_area: 1000 } },
+            color:  { value: ['#ffffff', '#c8d6e5', '#8899aa'] },
             shape:  { type: 'circle' },
-            opacity: { value: 0.35, random: true, anim: { enable: true, speed: 0.5, opacity_min: 0.05, sync: false } },
-            size:    { value: 1.8, random: true, anim: { enable: true, speed: 1.2, size_min: 0.3, sync: false } },
-            line_linked: { enable: true, distance: 130, color: '#0057ff', opacity: 0.1, width: 0.8 },
-            move: { enable: true, speed: 0.6, direction: 'none', random: true, straight: false, out_mode: 'out', bounce: false }
+            opacity: {
+              value: 0.18,
+              random: true,
+              anim: { enable: true, speed: 0.4, opacity_min: 0.02, sync: false }
+            },
+            size: {
+              value: 1.4,
+              random: true,
+              anim: { enable: true, speed: 0.8, size_min: 0.2, sync: false }
+            },
+            line_linked: {
+              enable: true, distance: 150,
+              color: '#ffffff', opacity: 0.04, width: 0.6
+            },
+            move: {
+              enable: true, speed: 0.35, direction: 'none',
+              random: true, straight: false, out_mode: 'out', bounce: false
+            }
           },
           interactivity: {
             detect_on: 'canvas',
-            events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
-            modes: { grab: { distance: 180, line_linked: { opacity: 0.35 } }, push: { particles_nb: 3 } }
+            events: {
+              onhover: { enable: true, mode: 'grab' },
+              onclick: { enable: false },
+              resize:  true
+            },
+            modes: {
+              grab: { distance: 160, line_linked: { opacity: 0.22 } }
+            }
           },
           retina_detect: true
         });
