@@ -3,33 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abyss V5 - Nexus Shell</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Nexus Shell - Incognito</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-chrome: #06080f;
-            --bg-nav: #0a0d14;
-            --bg-tab: #0e1219;
-            --bg-tab-hover: #131822;
-            --bg-tab-active: #161b24;
-            --accent: #00d4ff;
-            --accent-dim: rgba(0, 212, 255, 0.15);
-            --accent-glow: rgba(0, 212, 255, 0.4);
-            --danger: #ff3860;
-            --text-main: #c8cdd5;
-            --text-muted: #5a6270;
-            --text-bright: #ffffff;
-            --border: rgba(255,255,255,0.06);
-            --border-hover: rgba(255,255,255,0.12);
-            --shadow: 0 4px 24px rgba(0,0,0,0.6);
+            /* Incognito Theme Colors */
+            --bg-app: #202124;
+            --bg-toolbar: #35363a;
+            --bg-tab-active: #35363a;
+            --bg-tab-hover: #2d2e31;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --accent: #8ab4f8;
+            --border: rgba(255, 255, 255, 0.1);
+            --danger: #f28b82;
+            --shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-chrome); 
-            color: var(--text-main); 
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: var(--bg-app); 
+            color: var(--text-primary); 
             height: 100vh; 
             overflow: hidden; 
             display: flex; 
@@ -40,416 +36,229 @@
         /* ========== TAB BAR ========== */
         .tab-bar { 
             display: flex; 
-            background: var(--bg-nav); 
-            padding: 6px 6px 0; 
+            background: var(--bg-app); 
+            padding: 8px 8px 0 8px; 
             gap: 2px; 
             align-items: flex-end; 
-            border-bottom: 1px solid var(--border);
             overflow-x: auto;
             overflow-y: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
         }
-        .tab-bar::-webkit-scrollbar { height: 3px; }
-        .tab-bar::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+        .tab-bar::-webkit-scrollbar { display: none; }
 
         .tab {
-            min-width: 160px; 
+            min-width: 140px; 
             max-width: 240px; 
             height: 34px; 
-            background: var(--bg-tab); 
-            border: 1px solid var(--border); 
-            border-bottom: none;
-            border-radius: 10px 10px 0 0; 
+            background: transparent; 
+            border-radius: 8px 8px 0 0; 
             padding: 0 10px 0 12px; 
             display: flex; 
             align-items: center; 
             gap: 8px; 
             cursor: pointer;
-            font-size: 12px; 
-            color: var(--text-muted); 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 13px; 
+            color: var(--text-secondary); 
+            transition: background 0.2s;
             position: relative;
             flex-shrink: 0;
-            overflow: hidden;
+            flex: 1;
         }
 
-        .tab::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: var(--accent);
-            transform: scaleX(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.8;
+        /* Tab Separator */
+        .tab:not(.active):not(:hover)::after {
+            content: ''; position: absolute; right: -1px; top: 25%; height: 50%; width: 1px;
+            background: var(--border);
         }
 
-        .tab.active { 
-            background: var(--bg-tab-active); 
-            color: var(--text-bright); 
-            box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
-        }
-        .tab.active::before { transform: scaleX(1); }
+        .tab.active { background: var(--bg-tab-active); color: var(--text-primary); }
+        .tab:hover:not(.active) { background: var(--bg-tab-hover); }
 
-        .tab:hover:not(.active) { 
-            background: var(--bg-tab-hover); 
-            color: var(--text-main);
-            border-color: var(--border-hover);
-        }
+        .tab.dragging { opacity: 0.5; }
+        .tab.drop-target { border: 1px dashed var(--accent); }
 
-        .tab.dragging { opacity: 0.6; transform: scale(0.95); }
-        .tab.drop-target { border-color: var(--accent); background: var(--accent-dim); }
+        .tab-favicon { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .tab-favicon img { width: 100%; height: 100%; border-radius: 2px; }
 
-        .tab-favicon {
-            width: 14px; height: 14px;
-            border-radius: 3px;
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px;
-            background: rgba(255,255,255,0.05);
-        }
-        .tab-favicon img { width: 14px; height: 14px; border-radius: 3px; object-fit: cover; }
+        .tab-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 400; }
 
-        .tab-title { 
-            flex: 1; 
-            overflow: hidden; 
-            white-space: nowrap; 
-            text-overflow: ellipsis;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-        }
-
-        .tab-audio {
-            width: 14px; height: 14px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
-            color: var(--accent);
-            font-size: 11px;
-        }
-        .tab-audio.visible { opacity: 1; }
-
+        /* Loading Spinner */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         .tab-loading {
-            width: 12px; height: 12px;
-            border: 2px solid var(--border-hover);
-            border-top-color: var(--accent);
+            width: 14px; height: 14px;
+            border: 2px solid var(--text-secondary);
+            border-top-color: transparent;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            flex-shrink: 0;
+            animation: spin 1s linear infinite;
             display: none;
+            flex-shrink: 0;
         }
-        .tab-loading.visible { display: block; }
+        .tab.loading .tab-favicon { display: none; }
+        .tab.loading .tab-loading { display: block; }
 
         .tab-close { 
-            width: 18px; height: 18px; 
+            width: 24px; height: 24px; 
             display: flex; align-items: center; justify-content: center; 
             border-radius: 50%; 
             transition: all 0.2s; 
             flex-shrink: 0;
             opacity: 0;
-            font-size: 14px;
-            line-height: 1;
+            color: var(--text-secondary);
         }
-        .tab:hover .tab-close { opacity: 1; }
-        .tab.active .tab-close { opacity: 1; }
-        .tab-close:hover { 
-            background: rgba(255,56,96,0.15); 
-            color: var(--danger); 
-        }
-
-        .tab-pin {
-            font-size: 10px;
-            color: var(--accent);
-            opacity: 0;
-            transition: opacity 0.2s;
-            flex-shrink: 0;
-        }
-        .tab.pinned { min-width: 40px; max-width: 60px; padding: 0 8px; }
-        .tab.pinned .tab-title { display: none; }
-        .tab.pinned .tab-pin { opacity: 1; }
-        .tab.pinned .tab-close { display: none; }
+        .tab:hover .tab-close, .tab.active .tab-close { opacity: 1; }
+        .tab-close:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
         .new-tab-btn { 
-            padding: 6px 10px; 
+            width: 32px; height: 32px; 
+            display: flex; align-items: center; justify-content: center; 
             cursor: pointer; 
-            color: var(--text-muted); 
-            font-size: 18px; 
-            line-height: 1;
-            border-radius: 8px;
-            transition: all 0.2s;
+            color: var(--text-secondary); 
+            border-radius: 50%;
+            transition: background 0.2s;
             flex-shrink: 0;
+            margin-left: 4px;
             margin-bottom: 2px;
         }
-        .new-tab-btn:hover { 
-            background: var(--bg-tab-hover); 
-            color: var(--text-bright);
-            transform: scale(1.1);
-        }
+        .new-tab-btn:hover { background: var(--bg-tab-hover); color: var(--text-primary); }
+        .new-tab-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
-        /* ========== NAV BAR ========== */
-        .nav-bar { 
-            background: var(--bg-chrome); 
-            padding: 8px 14px; 
+        /* ========== TOOLBAR ========== */
+        .toolbar { 
+            background: var(--bg-toolbar); 
+            padding: 6px 12px; 
             display: flex; 
             align-items: center; 
-            gap: 10px; 
-            border-bottom: 1px solid var(--border);
+            gap: 12px; 
         }
 
-        .nav-btns { display: flex; gap: 4px; }
-
-        .btn { 
-            background: none; 
-            border: none; 
-            color: var(--text-muted); 
-            cursor: pointer; 
-            font-size: 15px; 
-            transition: all 0.2s; 
-            width: 30px; 
-            height: 30px; 
-            border-radius: 8px;
+        .nav-btn { 
+            background: none; border: none; color: var(--text-secondary); 
+            cursor: pointer; transition: background 0.2s; 
+            width: 32px; height: 32px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
         }
-        .btn:hover:not(:disabled) { 
-            background: var(--bg-tab); 
-            color: var(--accent); 
-            transform: translateY(-1px);
-        }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+        .nav-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
         .address-bar-container {
             flex: 1; 
-            background: var(--bg-nav); 
-            border: 1px solid var(--border); 
-            border-radius: 10px;
-            height: 34px; 
+            background: var(--bg-app); 
+            border: 1px solid transparent; 
+            border-radius: 100px;
+            height: 32px; 
             display: flex; 
             align-items: center; 
-            padding: 0 14px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0 16px; 
+            transition: all 0.2s;
             gap: 10px;
         }
         .address-bar-container:focus-within { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 0 3px var(--accent-dim), 0 0 20px var(--accent-glow);
-            background: var(--bg-tab-active);
+            border-color: rgba(138, 180, 248, 0.4); 
+            box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.1);
         }
 
-        .address-icon {
-            color: var(--text-muted);
-            font-size: 12px;
-            transition: color 0.2s;
-        }
-        .address-bar-container:focus-within .address-icon { color: var(--accent); }
+        .address-icon { display: flex; align-items: center; color: var(--text-secondary); }
+        .address-icon svg { width: 16px; height: 16px; fill: currentColor; }
 
         #main-address-bar {
-            width: 100%; 
-            background: none; 
-            border: none; 
-            color: var(--text-bright); 
-            outline: none; 
-            font-size: 13px; 
-            font-family: 'Inter', sans-serif;
-            letter-spacing: 0.3px;
+            flex: 1; background: none; border: none; color: var(--text-primary); 
+            outline: none; font-size: 14px; font-family: 'Roboto', sans-serif;
         }
-        #main-address-bar::placeholder { color: var(--text-muted); }
+        #main-address-bar::placeholder { color: var(--text-secondary); }
+
+        /* ========== PROGRESS BAR ========== */
+        .progress-container {
+            height: 2px;
+            background: var(--bg-toolbar);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        .progress-bar {
+            position: absolute;
+            top: 0; left: 0; height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.2s ease, opacity 0.3s;
+            opacity: 0;
+        }
+        .progress-bar.loading { opacity: 1; }
 
         /* ========== VIEWPORT ========== */
         .viewport { 
-            flex: 1; 
-            position: relative; 
-            background: #000; 
-            overflow: hidden;
+            flex: 1; position: relative; background: var(--bg-app); 
         }
-
         iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-            display: none; 
-            position: absolute; 
-            inset: 0; 
+            width: 100%; height: 100%; border: none; 
+            position: absolute; inset: 0; 
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
         }
-        iframe.active { display: block; }
+        iframe.active { opacity: 1; pointer-events: auto; }
 
-        /* ========== SUBMARINE LOADER (CANVAS) ========== */
-        .loader-overlay {
-            position: absolute; 
-            inset: 0; 
-            background: linear-gradient(180deg, #020408 0%, #0a1020 50%, #020408 100%);
-            z-index: 1000;
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            overflow: hidden;
-        }
-        .loader-overlay.visible { display: flex; }
-
-        #submarine-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .loader-hud {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-            pointer-events: none;
-        }
-
-        .loader-status {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--accent);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            opacity: 0.8;
-            text-shadow: 0 0 20px var(--accent-glow);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .loader-depth {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-        }
-
-        .loader-progress-container {
-            width: 280px;
-            height: 2px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .loader-progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s linear infinite;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-        /* ========== CONTEXT MENU ========== */
+        /* ========== MENUS & TOOLTIPS ========== */
         .context-menu {
-            position: fixed;
-            background: var(--bg-tab-active);
-            border: 1px solid var(--border-hover);
-            border-radius: 10px;
-            padding: 6px;
-            z-index: 10000;
-            box-shadow: var(--shadow), 0 0 40px rgba(0,0,0,0.4);
-            display: none;
-            min-width: 180px;
-            backdrop-filter: blur(20px);
+            position: fixed; background: #28292c; border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 0; z-index: 10000;
+            box-shadow: var(--shadow); display: none; min-width: 220px;
         }
         .context-menu.visible { display: block; }
         .context-item {
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.15s;
+            padding: 10px 16px; cursor: pointer; font-size: 13px;
+            color: var(--text-primary); display: flex; align-items: center; gap: 12px;
         }
-        .context-item:hover {
-            background: var(--accent-dim);
-            color: var(--accent);
-        }
-        .context-item.danger:hover {
-            background: rgba(255,56,96,0.1);
-            color: var(--danger);
-        }
-        .context-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 6px 0;
-        }
+        .context-item:hover { background: var(--bg-tab-hover); }
+        .context-divider { height: 1px; background: var(--border); margin: 6px 0; }
 
-        /* ========== TOOLTIP ========== */
         .tab-tooltip {
-            position: fixed;
-            background: var(--bg-tab-active);
-            border: 1px solid var(--border-hover);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 11px;
-            color: var(--text-main);
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            box-shadow: var(--shadow);
-            max-width: 300px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            position: fixed; background: #28292c; border: 1px solid var(--border);
+            border-radius: 4px; padding: 6px 10px; font-size: 12px; color: var(--text-primary);
+            z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4); max-width: 300px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .tab-tooltip.visible { opacity: 1; }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="tab-bar" id="tab-bar">
-        <div class="new-tab-btn" onclick="createNewTab()" title="新しいタブ">+</div>
+        <div class="new-tab-btn" onclick="createNewTab()" title="新しいタブ">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </div>
     </div>
 
-    <div class="nav-bar">
-        <div class="nav-btns">
-            <button class="btn" id="btn-back" onclick="activeIframeAction('back')" title="戻る">←</button>
-            <button class="btn" id="btn-forward" onclick="activeIframeAction('forward')" title="進む">→</button>
-            <button class="btn" id="btn-reload" onclick="activeIframeAction('reload')" title="更新">↻</button>
-        </div>
+    <div class="toolbar">
+        <button class="nav-btn" id="btn-back" onclick="activeIframeAction('back')" title="戻る">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <button class="nav-btn" id="btn-forward" onclick="activeIframeAction('forward')" title="進む">
+            <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+        <button class="nav-btn" id="btn-reload" onclick="activeIframeAction('reload')" title="更新">
+            <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.24 4.94 14.24 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        </button>
         <div class="address-bar-container">
-            <span class="address-icon">◆</span>
-            <input type="text" id="main-address-bar" placeholder="URLを入力または検索..." autocomplete="off">
-        </div>
-    </div>
-
-    <div class="viewport" id="viewport">
-        <!-- Submarine Canvas Loader -->
-        <div class="loader-overlay" id="global-loader">
-            <canvas id="submarine-canvas"></canvas>
-            <div class="loader-hud">
-                <div class="loader-status" id="loader-status">INITIALIZING DIVE SEQUENCE</div>
-                <div class="loader-progress-container">
-                    <div class="loader-progress-bar" id="loader-progress"></div>
-                </div>
-                <div class="loader-depth" id="loader-depth">DEPTH: 0m</div>
+            <div class="address-icon" title="プライベート接続">
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
             </div>
+            <input type="text" id="main-address-bar" placeholder="検索または URL を入力" autocomplete="off">
         </div>
     </div>
 
-    <!-- Context Menu -->
-    <div class="context-menu" id="context-menu">
-        <div class="context-item" onclick="contextAction('reload')"><span>↻</span> 再読み込み</div>
-        <div class="context-item" onclick="contextAction('duplicate')"><span>⧉</span> 複製</div>
-        <div class="context-item" onclick="contextAction('pin')" id="ctx-pin"><span>📌</span> ピン留め</div>
-        <div class="context-divider"></div>
-        <div class="context-item" onclick="contextAction('close')"><span>×</span> タブを閉じる</div>
-        <div class="context-item" onclick="contextAction('closeOthers')"><span>⇥</span> 他のタブを閉じる</div>
-        <div class="context-item danger" onclick="contextAction('closeRight')"><span>⇥⇥</span> 右側のタブを閉じる</div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
     </div>
 
-    <!-- Tooltip -->
+    <div class="viewport" id="viewport"></div>
+
+    <div class="context-menu" id="context-menu">
+        <div class="context-item" onclick="contextAction('reload')">再読み込み</div>
+        <div class="context-item" onclick="contextAction('duplicate')">タブを複製</div>
+        <div class="context-divider"></div>
+        <div class="context-item" onclick="contextAction('close')">タブを閉じる</div>
+        <div class="context-item" onclick="contextAction('closeOthers')">他のタブを閉じる</div>
+        <div class="context-item" onclick="contextAction('closeRight')">右側のタブを閉じる</div>
+    </div>
+
     <div class="tab-tooltip" id="tab-tooltip"></div>
 
     <script src="uv/uv.bundle.js"></script>
@@ -460,431 +269,62 @@
         let activeTabId = null;
         let contextTabId = null;
         let dragSrcEl = null;
-        let loaderProgress = 0;
-        let loaderInterval = null;
-        let submarineAnimId = null;
 
-        // ==================== SUBMARINE CANVAS ANIMATION ====================
-        const canvas = document.getElementById('submarine-canvas');
-        const ctx = canvas.getContext('2d');
-        let canvasW, canvasH;
-        let sonarWaves = [];
-        let bubbles = [];
-        let particles = [];
-        let scanAngle = 0;
-        let time = 0;
+        // Default Icon SVG
+        const defaultIcon = `<svg viewBox="0 0 24 24" style="fill:currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
 
-        function resizeCanvas() {
-            canvasW = canvas.width = canvas.offsetWidth;
-            canvasH = canvas.height = canvas.offsetHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class SonarWave {
-            constructor() {
-                this.x = canvasW / 2;
-                this.y = canvasH / 2;
-                this.radius = 10;
-                this.maxRadius = Math.max(canvasW, canvasH) * 0.6;
-                this.alpha = 1;
-                this.speed = 1.5;
-                this.lineWidth = 2;
-            }
-            update() {
-                this.radius += this.speed;
-                this.alpha = 1 - (this.radius / this.maxRadius);
-                this.lineWidth = 2 * this.alpha;
-            }
-            draw() {
-                if (this.alpha <= 0) return;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 212, 255, ${this.alpha * 0.4})`;
-                ctx.lineWidth = this.lineWidth;
-                ctx.stroke();
-
-                // Inner glow ring
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius * 0.95, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 212, 255, ${this.alpha * 0.1})`;
-                ctx.lineWidth = this.lineWidth * 4;
-                ctx.stroke();
-            }
-            isDead() { return this.alpha <= 0; }
-        }
-
-        class Bubble {
-            constructor() {
-                this.reset();
-                this.y = canvasH + Math.random() * 100;
-            }
-            reset() {
-                this.x = Math.random() * canvasW;
-                this.y = canvasH + 20;
-                this.size = Math.random() * 2 + 0.5;
-                this.speed = Math.random() * 0.8 + 0.3;
-                this.wobble = Math.random() * Math.PI * 2;
-                this.wobbleSpeed = Math.random() * 0.02 + 0.01;
-                this.alpha = Math.random() * 0.3 + 0.1;
-            }
-            update() {
-                this.y -= this.speed;
-                this.wobble += this.wobbleSpeed;
-                this.x += Math.sin(this.wobble) * 0.3;
-                if (this.y < -10) this.reset();
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 212, 255, ${this.alpha})`;
-                ctx.fill();
-                // Highlight
-                ctx.beginPath();
-                ctx.arc(this.x - this.size*0.3, this.y - this.size*0.3, this.size*0.3, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * 0.5})`;
-                ctx.fill();
-            }
-        }
-
-        class DepthParticle {
-            constructor() {
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * canvasW;
-                this.y = Math.random() * canvasH;
-                this.size = Math.random() * 1.5;
-                this.speedY = Math.random() * 0.2 + 0.05;
-                this.alpha = Math.random() * 0.15;
-            }
-            update() {
-                this.y += this.speedY;
-                if (this.y > canvasH) {
-                    this.y = 0;
-                    this.x = Math.random() * canvasW;
-                }
-            }
-            draw() {
-                ctx.fillStyle = `rgba(100, 150, 200, ${this.alpha})`;
-                ctx.fillRect(this.x, this.y, this.size, this.size);
-            }
-        }
-
-        // Initialize particles
-        for (let i = 0; i < 60; i++) bubbles.push(new Bubble());
-        for (let i = 0; i < 80; i++) particles.push(new DepthParticle());
-
-        function drawSubmarine() {
-            const cx = canvasW / 2;
-            const cy = canvasH / 2;
-            const scale = Math.min(canvasW, canvasH) / 800;
-
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.scale(scale, scale);
-
-            // Gentle floating motion
-            const floatY = Math.sin(time * 0.02) * 8;
-            const floatRot = Math.sin(time * 0.015) * 0.5;
-            ctx.translate(0, floatY);
-            ctx.rotate(floatRot * Math.PI / 180);
-
-            // Submarine shadow/glow
-            ctx.shadowColor = 'rgba(0, 212, 255, 0.3)';
-            ctx.shadowBlur = 30;
-
-            // Main hull
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 120, 35, 0, 0, Math.PI * 2);
-            ctx.fillStyle = '#0d1b2a';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Hull highlight
-            ctx.beginPath();
-            ctx.ellipse(0, -8, 100, 15, 0, 0, Math.PI);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.1)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Conning tower
-            ctx.beginPath();
-            ctx.roundRect(-25, -55, 50, 30, 5);
-            ctx.fillStyle = '#0d1b2a';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Periscope
-            ctx.beginPath();
-            ctx.moveTo(0, -55);
-            ctx.lineTo(0, -75);
-            ctx.lineTo(15, -75);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-
-            // Periscope lens glow
-            ctx.beginPath();
-            ctx.arc(15, -75, 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 212, 255, 0.6)';
-            ctx.shadowColor = 'rgba(0, 212, 255, 0.8)';
-            ctx.shadowBlur = 15;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Propeller
-            const propAngle = time * 0.3;
-            ctx.save();
-            ctx.translate(-120, 0);
-            ctx.rotate(propAngle);
-            for (let i = 0; i < 3; i++) {
-                ctx.save();
-                ctx.rotate((i * Math.PI * 2) / 3);
-                ctx.beginPath();
-                ctx.ellipse(0, -12, 3, 12, 0, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 212, 255, 0.4)';
-                ctx.fill();
-                ctx.restore();
-            }
-            ctx.restore();
-
-            // Tail fins
-            ctx.beginPath();
-            ctx.moveTo(-110, 0);
-            ctx.lineTo(-140, -20);
-            ctx.lineTo(-135, 0);
-            ctx.lineTo(-140, 20);
-            ctx.closePath();
-            ctx.fillStyle = '#0d1b2a';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.25)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            // Windows / Lights
-            const windowPositions = [-60, -20, 20, 60];
-            windowPositions.forEach((wx, i) => {
-                ctx.beginPath();
-                ctx.arc(wx, 2, 6, 0, Math.PI * 2);
-                const glowIntensity = 0.3 + Math.sin(time * 0.05 + i) * 0.1;
-                ctx.fillStyle = `rgba(0, 212, 255, ${glowIntensity})`;
-                ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                // Window frame
-                ctx.beginPath();
-                ctx.arc(wx, 2, 6, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            });
-
-            // Front searchlight beam
-            ctx.save();
-            ctx.globalCompositeOperation = 'screen';
-            ctx.beginPath();
-            ctx.moveTo(115, 0);
-            ctx.lineTo(300, -40);
-            ctx.lineTo(300, 40);
-            ctx.closePath();
-            const beamGrad = ctx.createLinearGradient(115, 0, 300, 0);
-            beamGrad.addColorStop(0, 'rgba(0, 212, 255, 0.15)');
-            beamGrad.addColorStop(1, 'rgba(0, 212, 255, 0)');
-            ctx.fillStyle = beamGrad;
-            ctx.fill();
-            ctx.restore();
-
-            // HUD rings around submarine
-            ctx.beginPath();
-            ctx.arc(0, 0, 160, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(0, 212, 255, ${0.1 + Math.sin(time * 0.03) * 0.05})`;
-            ctx.lineWidth = 1;
-            ctx.setLineDash([8, 12]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Rotating HUD arc
-            ctx.beginPath();
-            ctx.arc(0, 0, 160, time * 0.01, time * 0.01 + Math.PI * 0.5);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Crosshair
-            const crossSize = 180;
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.15)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(-crossSize, 0); ctx.lineTo(crossSize, 0);
-            ctx.moveTo(0, -crossSize); ctx.lineTo(0, crossSize);
-            ctx.stroke();
-
-            ctx.restore();
-        }
-
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.03)';
-            ctx.lineWidth = 1;
-            const gridSize = 40;
-            const offset = (time * 0.5) % gridSize;
-
-            for (let x = 0; x < canvasW; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvasH);
-                ctx.stroke();
-            }
-            for (let y = offset; y < canvasH; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvasW, y);
-                ctx.stroke();
-            }
-        }
-
-        function animateSubmarine() {
-            if (!document.getElementById('global-loader').classList.contains('visible')) {
-                submarineAnimId = requestAnimationFrame(animateSubmarine);
-                return;
-            }
-
-            ctx.clearRect(0, 0, canvasW, canvasH);
-            time++;
-
-            // Background gradient
-            const bgGrad = ctx.createRadialGradient(
-                canvasW/2, canvasH/2, 0,
-                canvasW/2, canvasH/2, Math.max(canvasW, canvasH)
-            );
-            bgGrad.addColorStop(0, 'rgba(10, 25, 45, 0.3)');
-            bgGrad.addColorStop(1, 'rgba(2, 4, 8, 0)');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, canvasW, canvasH);
-
-            drawGrid();
-
-            // Depth particles
-            particles.forEach(p => { p.update(); p.draw(); });
-
-            // Sonar waves
-            if (time % 120 === 0) sonarWaves.push(new SonarWave());
-            sonarWaves = sonarWaves.filter(w => !w.isDead());
-            sonarWaves.forEach(w => { w.update(); w.draw(); });
-
-            // Bubbles
-            bubbles.forEach(b => { b.update(); b.draw(); });
-
-            // Submarine
-            drawSubmarine();
-
-            // Scan line overlay
-            const scanY = (time * 2) % canvasH;
-            ctx.beginPath();
-            ctx.moveTo(0, scanY);
-            ctx.lineTo(canvasW, scanY);
-            ctx.strokeStyle = 'rgba(0, 212, 255, 0.08)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Vignette
-            const vigGrad = ctx.createRadialGradient(
-                canvasW/2, canvasH/2, canvasH * 0.3,
-                canvasW/2, canvasH/2, canvasH * 0.8
-            );
-            vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
-            vigGrad.addColorStop(1, 'rgba(0,0,0,0.6)');
-            ctx.fillStyle = vigGrad;
-            ctx.fillRect(0, 0, canvasW, canvasH);
-
-            submarineAnimId = requestAnimationFrame(animateSubmarine);
-        }
-        animateSubmarine();
-
-        // ==================== LOADER CONTROL ====================
-        const loaderStatuses = [
-            "INITIALIZING DIVE SEQUENCE",
-            "PRESSURIZING HULL",
-            "CALIBRATING SONAR ARRAY",
-            "ESTABLISHING SECURE CONNECTION",
-            "DESCENDING TO OPERATIONAL DEPTH",
-            "SCANNING PERIMETER",
-            "ACQUIRING TARGET SIGNAL",
-            "NEGOTIATING SECURE HANDSHAKE",
-            "ROUTE ESTABLISHED"
-        ];
-
-        function showLoader() {
-            const overlay = document.getElementById('global-loader');
-            overlay.classList.add('visible');
-            loaderProgress = 0;
-            document.getElementById('loader-progress').style.width = '0%';
-
-            let statusIdx = 0;
-            document.getElementById('loader-status').textContent = loaderStatuses[0];
-
-            if (loaderInterval) clearInterval(loaderInterval);
-            loaderInterval = setInterval(() => {
-                loaderProgress += Math.random() * 12 + 3;
-                if (loaderProgress > 95) loaderProgress = 95;
-                document.getElementById('loader-progress').style.width = loaderProgress + '%';
-                document.getElementById('loader-depth').textContent = `DEPTH: ${Math.floor(loaderProgress * 12)}m`;
-
-                const newIdx = Math.min(Math.floor(loaderProgress / 12), loaderStatuses.length - 1);
-                if (newIdx !== statusIdx) {
-                    statusIdx = newIdx;
-                    document.getElementById('loader-status').textContent = loaderStatuses[statusIdx];
-                }
+        // ==================== PROGRESS BAR ====================
+        function showProgress() {
+            const bar = document.getElementById('progress-bar');
+            bar.classList.add('loading');
+            bar.style.width = '10%';
+            
+            if (window.progressInterval) clearInterval(window.progressInterval);
+            let progress = 10;
+            window.progressInterval = setInterval(() => {
+                progress += (90 - progress) * 0.1;
+                bar.style.width = progress + '%';
             }, 200);
         }
 
-        function hideLoader() {
-            document.getElementById('loader-progress').style.width = '100%';
-            document.getElementById('loader-status').textContent = "CONNECTION ESTABLISHED";
-            document.getElementById('loader-depth').textContent = `DEPTH: ${Math.floor(Math.random() * 200 + 800)}m`;
-
+        function hideProgress() {
+            const bar = document.getElementById('progress-bar');
+            if (window.progressInterval) clearInterval(window.progressInterval);
+            bar.style.width = '100%';
             setTimeout(() => {
-                document.getElementById('global-loader').classList.remove('visible');
-                if (loaderInterval) clearInterval(loaderInterval);
-            }, 600);
+                bar.classList.remove('loading');
+                setTimeout(() => { bar.style.width = '0%'; }, 200);
+            }, 300);
         }
 
         // ==================== TAB SYSTEM ====================
         function createNewTab(url = 'search.html') {
             const id = 'tab-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
-            const tabObj = { id, url, pinned: false, loading: true };
+            // proxyReloaded: 初回のみリロードするためのフラグ
+            const tabObj = { id, url, loading: true, proxyReloaded: false };
             tabs.push(tabObj);
 
             const tabEl = document.createElement('div');
-            tabEl.className = 'tab';
+            tabEl.className = 'tab loading';
             tabEl.id = 'trigger-' + id;
             tabEl.draggable = true;
             tabEl.dataset.tabId = id;
 
             tabEl.innerHTML = `
-                <span class="tab-pin">📌</span>
-                <span class="tab-favicon"><span>◆</span></span>
-                <span class="tab-title">New Tab</span>
-                <span class="tab-audio">🔊</span>
-                <span class="tab-loading visible"></span>
-                <span class="tab-close" onclick="closeTab(event, '${id}')">×</span>
+                <span class="tab-favicon">${defaultIcon}</span>
+                <span class="tab-loading"></span>
+                <span class="tab-title">新しいタブ</span>
+                <span class="tab-close" onclick="closeTab(event, '${id}')">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </span>
             `;
 
-            // Events
             tabEl.addEventListener('click', () => switchTab(id));
             tabEl.addEventListener('contextmenu', (e) => showContextMenu(e, id));
             tabEl.addEventListener('mouseenter', (e) => showTooltip(e, id));
             tabEl.addEventListener('mouseleave', hideTooltip);
-            tabEl.addEventListener('dblclick', () => togglePinTab(id));
 
-            // Drag & Drop
+            // Drag Events
             tabEl.addEventListener('dragstart', handleDragStart);
             tabEl.addEventListener('dragover', handleDragOver);
             tabEl.addEventListener('drop', handleDrop);
@@ -896,18 +336,33 @@
             const iframe = document.createElement('iframe');
             iframe.id = id;
             iframe.src = url;
+            
             iframe.onload = () => {
                 tabObj.loading = false;
-                const loadingEl = tabEl.querySelector('.tab-loading');
-                if (loadingEl) loadingEl.classList.remove('visible');
-                hideLoader();
+                tabEl.classList.remove('loading');
+                hideProgress();
                 updateTabMetadata(id);
                 updateNavButtons();
+
+                // ▼▼▼ 初回プロキシ読み込み時の自動リロード処理 ▼▼▼
+                try {
+                    const currentUrl = iframe.contentWindow.location.href;
+                    // UVプロキシのURLであり、かつこのタブでまだ一度もリロードを実行していない場合
+                    if (currentUrl.includes(__uv$config.prefix) && !tabObj.proxyReloaded) {
+                        tabObj.proxyReloaded = true; // フラグを立てて二度と実行されないようにする
+                        setTimeout(() => {
+                            iframe.contentWindow.location.reload();
+                        }, 50); // 一瞬だけ待機して安全にリロード
+                    }
+                } catch(e) {
+                    // クロスオリジン等で取得できない場合は無視
+                }
             };
+            
             document.getElementById('viewport').appendChild(iframe);
 
             switchTab(id);
-            showLoader();
+            showProgress();
         }
 
         function switchTab(id) {
@@ -930,7 +385,7 @@
             if (e) e.stopPropagation();
             const tabObj = tabs.find(t => t.id === id);
             if (!tabObj) return;
-            if (tabs.length === 1 && !tabObj.pinned) {
+            if (tabs.length === 1) {
                 createNewTab();
                 closeTab(null, id);
                 return;
@@ -949,35 +404,7 @@
                 if (tabs[newIndex]) switchTab(tabs[newIndex].id);
             }
             updateNavButtons();
-        }
-
-        function togglePinTab(id) {
-            const tabObj = tabs.find(t => t.id === id);
-            const tabEl = document.getElementById('trigger-' + id);
-            if (!tabObj || !tabEl) return;
-
-            tabObj.pinned = !tabObj.pinned;
-            tabEl.classList.toggle('pinned', tabObj.pinned);
-
-            // Move pinned tabs to the left
-            if (tabObj.pinned) {
-                const firstUnpinned = tabs.findIndex(t => !t.pinned);
-                if (firstUnpinned > -1) {
-                    const currentIdx = tabs.findIndex(t => t.id === id);
-                    tabs.splice(currentIdx, 1);
-                    tabs.splice(firstUnpinned, 0, tabObj);
-                    reorderTabs();
-                }
-            }
-        }
-
-        function reorderTabs() {
-            const bar = document.getElementById('tab-bar');
-            const newTabBtn = document.querySelector('.new-tab-btn');
-            tabs.forEach(t => {
-                const el = document.getElementById('trigger-' + t.id);
-                if (el) bar.insertBefore(el, newTabBtn);
-            });
+            hideTooltip();
         }
 
         function updateTabMetadata(id) {
@@ -986,17 +413,15 @@
             if (!iframe || !tab) return;
 
             try {
-                const title = iframe.contentDocument.title || "New Tab";
+                const title = iframe.contentDocument.title || "新しいタブ";
                 tab.querySelector('.tab-title').textContent = title;
 
-                // Try to get favicon
                 const faviconLink = iframe.contentDocument.querySelector('link[rel*="icon"]');
                 if (faviconLink) {
-                    const faviconUrl = faviconLink.href;
-                    tab.querySelector('.tab-favicon').innerHTML = `<img src="${faviconUrl}" onerror="this.parentElement.innerHTML='<span>◆</span>'">`;
+                    tab.querySelector('.tab-favicon').innerHTML = `<img src="${faviconLink.href}" onerror="this.innerHTML='${defaultIcon}'">`;
                 }
             } catch(e) {
-                tab.querySelector('.tab-title').textContent = "Secure Session";
+                tab.querySelector('.tab-title').textContent = "プライベート接続";
             }
         }
 
@@ -1009,6 +434,7 @@
                 if (currentUrl.includes('search.html')) {
                     bar.value = '';
                 } else {
+                    // UVデコードが必要な場合はここで処理可能。簡易的にそのまま表示
                     bar.value = currentUrl;
                 }
             } catch(e) { 
@@ -1034,9 +460,7 @@
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             const target = e.target.closest('.tab');
-            if (target && target !== dragSrcEl) {
-                target.classList.add('drop-target');
-            }
+            if (target && target !== dragSrcEl) target.classList.add('drop-target');
         }
 
         function handleDrop(e) {
@@ -1051,7 +475,13 @@
                 if (srcIdx > -1 && targetIdx > -1) {
                     const [moved] = tabs.splice(srcIdx, 1);
                     tabs.splice(targetIdx, 0, moved);
-                    reorderTabs();
+                    
+                    const bar = document.getElementById('tab-bar');
+                    const newTabBtn = document.querySelector('.new-tab-btn');
+                    tabs.forEach(t => {
+                        const el = document.getElementById('trigger-' + t.id);
+                        if (el) bar.insertBefore(el, newTabBtn);
+                    });
                 }
             }
             return false;
@@ -1068,12 +498,8 @@
             e.preventDefault();
             contextTabId = id;
             const menu = document.getElementById('context-menu');
-            const tabObj = tabs.find(t => t.id === id);
-
-            document.getElementById('ctx-pin').innerHTML = 
-                `<span>${tabObj.pinned ? '🔓' : '📌'}</span> ${tabObj.pinned ? 'ピン留め解除' : 'ピン留め'}`;
-
-            menu.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
+            
+            menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
             menu.style.top = Math.min(e.clientY, window.innerHeight - 200) + 'px';
             menu.classList.add('visible');
         }
@@ -1091,9 +517,6 @@
                 case 'duplicate':
                     const tabObj = tabs.find(t => t.id === contextTabId);
                     if (tabObj) createNewTab(tabObj.url);
-                    break;
-                case 'pin':
-                    togglePinTab(contextTabId);
                     break;
                 case 'close':
                     closeTab(null, contextTabId);
@@ -1115,23 +538,19 @@
 
         // ==================== TOOLTIP ====================
         function showTooltip(e, id) {
-            const tabObj = tabs.find(t => t.id === id);
             const tabEl = document.getElementById('trigger-' + id);
-            if (!tabObj || !tabEl) return;
+            if (!tabEl) return;
 
             const tooltip = document.getElementById('tab-tooltip');
-            const title = tabEl.querySelector('.tab-title').textContent;
-            tooltip.textContent = title;
+            tooltip.textContent = tabEl.querySelector('.tab-title').textContent;
 
             const rect = tabEl.getBoundingClientRect();
             tooltip.style.left = rect.left + 'px';
-            tooltip.style.top = (rect.bottom + 6) + 'px';
+            tooltip.style.top = (rect.bottom + 8) + 'px';
             tooltip.classList.add('visible');
         }
 
-        function hideTooltip() {
-            document.getElementById('tab-tooltip').classList.remove('visible');
-        }
+        function hideTooltip() { document.getElementById('tab-tooltip').classList.remove('visible'); }
 
         // ==================== NAV ACTIONS ====================
         function activeIframeAction(action) {
@@ -1148,44 +567,40 @@
         document.getElementById('main-address-bar').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = e.target.value.trim();
+                if (!val) return;
+                
                 const frame = document.getElementById(activeTabId);
-                if (!frame) return;
+                const tabEl = document.getElementById('trigger-' + activeTabId);
+                if (!frame || !tabEl) return;
 
-                showLoader();
+                tabEl.classList.add('loading');
+                showProgress();
 
                 if (frame.contentWindow.processSearch) {
                     frame.contentWindow.processSearch(val);
                 } else {
-                    const url = __uv$config.prefix + __uv$config.encodeUrl(
-                        val.includes('.') 
-                            ? (val.startsWith('http') ? val : 'https://' + val) 
-                            : 'https://www.google.com/search?q=' + encodeURIComponent(val)
-                    );
-                    frame.src = url;
+                    let searchUrl = val;
+                    if (!val.includes('.') || val.includes(' ')) {
+                        searchUrl = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+                    } else if (!val.startsWith('http')) {
+                        searchUrl = 'https://' + val;
+                    }
+                    frame.src = __uv$config.prefix + __uv$config.encodeUrl(searchUrl);
                 }
             }
         });
 
-        // Keyboard shortcuts
+        // ==================== SHORTCUTS ====================
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 if (e.key === 't') { e.preventDefault(); createNewTab(); }
                 if (e.key === 'w') { e.preventDefault(); closeTab(null, activeTabId); }
-                if (e.key === 'Tab') { 
-                    e.preventDefault();
-                    const idx = tabs.findIndex(t => t.id === activeTabId);
-                    const next = e.shiftKey 
-                        ? (idx - 1 + tabs.length) % tabs.length 
-                        : (idx + 1) % tabs.length;
-                    if (tabs[next]) switchTab(tabs[next].id);
-                }
             }
         });
 
         // ==================== INIT ====================
         window.onload = () => {
             createNewTab();
-            updateNavButtons();
         };
     </script>
 </body>
